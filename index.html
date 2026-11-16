@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>氧了个氧 · 氧化数消消乐</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%23FFFDF8' stroke='%23463757' stroke-width='4'/%3E%3Ccircle cx='22' cy='28' r='4' fill='%23463757'/%3E%3Ccircle cx='42' cy='28' r='4' fill='%23463757'/%3E%3Cpath d='M24 41q8 7 16 0' stroke='%23463757' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=ZCOOL+KuaiLe&family=Baloo+2:wght@600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ink:#463757; --ink-2:#6F5C82; --cream:#FFF7EC; --paper:#FFFDF8;
+  --mint:#A8E5C6; --peach:#FFB79F; --butter:#FFDC8B; --lav:#CBB9F2; --sky:#A9D9F2; --pink:#FFB2C8;
+  --accent:#A8E5C6; --accent-ink:#2E8A63;
+  --f-display:"ZCOOL KuaiLe","Noto Sans SC","PingFang SC",system-ui,sans-serif;
+  --f-body:"Noto Sans SC","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+  --f-num:"Baloo 2","Noto Sans SC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  font-family:var(--f-body); color:var(--ink); background:var(--cream);
+  background-image:radial-gradient(rgba(70,55,87,.075) 1.5px,transparent 1.6px);
+  background-size:22px 22px;
+  overflow:hidden; -webkit-tap-highlight-color:transparent; user-select:none;
+  -webkit-text-size-adjust:100%;
+}
+body[data-lv="1"]{--accent:var(--mint);--accent-ink:#2E8A63}
+body[data-lv="2"]{--accent:var(--peach);--accent-ink:#B85137}
+body[data-lv="3"]{--accent:var(--lav);--accent-ink:#5F45A0}
+
+.app{height:100vh; height:100dvh; display:flex; flex-direction:column;
+  padding:0 0 calc(8px + env(safe-area-inset-bottom)); position:relative;}
+
+/* ===== 主界面 / 模式 ===== */
+.home{position:fixed; inset:0; z-index:55; display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+  padding:22px 20px calc(22px + env(safe-area-inset-bottom));
+  background-color:#FFF3E3;
+  background-image:radial-gradient(circle at 50% -12%, #FFFDF6 0%, rgba(255,253,246,0) 62%),
+    radial-gradient(rgba(70,55,87,.085) 1.5px, transparent 1.6px);
+  background-size:100% 100%, 20px 20px}
+.home.show{display:flex}
+.home::before{content:""; position:absolute; left:50%; top:-110px; width:540px; height:540px; transform:translateX(-50%);
+  background:radial-gradient(circle, rgba(255,183,159,.26) 0%, rgba(255,183,159,0) 66%); pointer-events:none}
+.home::after{content:""; position:absolute; left:-130px; bottom:-150px; width:430px; height:430px;
+  background:radial-gradient(circle, rgba(168,229,198,.32) 0%, rgba(168,229,198,0) 68%); pointer-events:none}
+.home > *{position:relative; z-index:1}
+.home-brand{display:flex; flex-direction:column; align-items:center; gap:7px}
+.home-brand .ava{width:62px; height:62px}
+.home-brand h1{font-family:var(--f-display); font-weight:400; font-size:31px; line-height:1.1; margin:0; letter-spacing:1px}
+.home-brand p{margin:0; font-size:11px; color:var(--ink-2); letter-spacing:.5px}
+.home-inner{width:min(100%,348px); display:flex; flex-direction:column; gap:10px}
+.mode-card{display:flex; align-items:center; gap:12px; width:100%; text-align:left; font-family:inherit; color:inherit;
+  padding:13px 14px; border:2.5px solid var(--ink); border-radius:20px; background:var(--paper);
+  box-shadow:0 6px 0 rgba(70,55,87,.16); cursor:pointer; transition:transform .12s, box-shadow .12s}
+.mode-card:active{transform:translateY(3px); box-shadow:0 3px 0 rgba(70,55,87,.16)}
+.mode-ic{width:44px; height:44px; flex:0 0 auto; border:2px solid var(--ink); border-radius:14px; display:grid; place-items:center}
+.mode-ic svg{width:22px; height:22px}
+.home-inner .mode-card[data-act="mode-challenge"] .mode-ic{background:var(--peach)}
+.home-inner .mode-card[data-act="mode-practice"] .mode-ic{background:var(--mint)}
+.mode-tx{min-width:0; flex:1}
+.mode-tx b{display:block; font-family:var(--f-display); font-weight:400; font-size:16.5px; letter-spacing:.6px}
+.mode-tx i{display:block; font-style:normal; font-size:10.5px; line-height:1.5; color:var(--ink-2); margin-top:3px}
+.home-best{margin:1px 0 0; min-height:15px; text-align:center; font-size:11px; color:var(--ink-2); letter-spacing:.3px}
+.home-tips{display:flex; flex-direction:column; gap:5px; padding:9px 12px;
+  background:rgba(255,253,248,.86); border:2px dashed rgba(70,55,87,.2); border-radius:16px}
+.home-tips p{margin:0; display:flex; align-items:center; gap:7px; font-size:10.5px; line-height:1.45; color:var(--ink-2); white-space:nowrap}
+.home-tips span{flex:0 0 auto; width:15px; height:15px; border-radius:50%; border:1.5px solid var(--ink);
+  background:var(--butter); display:grid; place-items:center; font-family:var(--f-num); font-size:9.5px; font-weight:800; color:var(--ink)}
+.home-foot{display:flex; gap:8px; justify-content:center}
+.home-sign{display:flex; align-items:center; gap:6px; font-size:10.5px; font-weight:600; color:var(--ink-2)}
+.home-sign .ava{width:24px; height:24px}
+.ghost-btn{border:2px solid var(--ink); background:rgba(255,253,248,.92); color:var(--ink); border-radius:999px;
+  font-family:inherit; font-size:11px; font-weight:700; padding:5px 13px; cursor:pointer; box-shadow:0 3px 0 rgba(70,55,87,.14)}
+.ghost-btn:active{transform:translateY(2px); box-shadow:0 1px 0 rgba(70,55,87,.14)}
+
+/* 提示气泡 */
+.toast{position:fixed; left:50%; bottom:calc(196px + env(safe-area-inset-bottom)); transform:translate(-50%,10px);
+  max-width:84vw; text-align:center; background:var(--ink); color:#FFF8EC; font-size:11.5px; font-weight:700; line-height:1.4;
+  padding:7px 14px; border-radius:999px; box-shadow:0 4px 0 rgba(70,55,87,.22);
+  opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:62}
+.toast.show{opacity:1; transform:translate(-50%,0)}
+
+/* 锁住的关卡 */
+.tab.locked{opacity:.5; background:#F3E9D9}
+.tab.locked svg{width:11px; height:11px; vertical-align:-1px; margin-right:3px}
+
+/* 暂停 */
+.pause{position:fixed; inset:0; z-index:58; display:none; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+  padding:24px; background-color:#FFF3E3;
+  background-image:radial-gradient(circle at 50% 0%, #FFFDF6 0%, rgba(255,253,246,0) 60%),
+    radial-gradient(rgba(70,55,87,.085) 1.5px, transparent 1.6px);
+  background-size:100% 100%, 20px 20px}
+.pause.show{display:flex}
+.pause-inner{width:min(100%,320px); display:flex; flex-direction:column; align-items:center; gap:9px;
+  padding:24px 20px 20px; background:var(--paper); border:2.5px solid var(--ink); border-radius:22px; box-shadow:0 8px 0 rgba(70,55,87,.16)}
+.pause-ic{width:52px; height:52px; border-radius:50%; border:2.5px solid var(--ink); background:var(--sky); display:grid; place-items:center}
+.pause-ic svg{width:22px; height:22px}
+.pause-inner h2{font-family:var(--f-display); font-weight:400; font-size:21px; margin:0}
+.pause-sub{margin:1px 0 0; font-size:14px; font-weight:700; color:var(--ink); text-align:center; line-height:1.4; letter-spacing:.5px}
+.pause-time{font-family:var(--f-num); font-size:12px; font-weight:800; color:var(--ink); background:var(--butter);
+  border:1.5px solid var(--ink); border-radius:9px; padding:2px 10px}
+.pause-inner .btn-main{width:100%}
+
+/* 挑战计时 */
+.progress .clk{display:block; margin-top:1px}
+.pausechip{display:inline-flex; align-items:center; gap:3px; padding:1px 5px; border:1.5px solid var(--ink); border-radius:8px;
+  background:var(--paper); color:var(--ink); font-family:var(--f-num); box-shadow:0 2px 0 rgba(70,55,87,.16); cursor:pointer}
+.pausechip svg{width:11px; height:11px; stroke:currentColor; stroke-width:3; stroke-linecap:round; fill:none}
+
+/* 挑战结算 */
+.card.fin{overflow:hidden}
+.card.fin::after{content:""; position:absolute; top:-55%; left:-45%; width:55%; height:210%;
+  background:linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.75) 50%, rgba(255,255,255,0) 100%);
+  transform:rotate(14deg); animation:shine 1s ease-out .4s both; pointer-events:none}
+@keyframes shine{0%{left:-55%; opacity:.85}100%{left:125%; opacity:0}}
+.fin-medal{display:block; width:94px; margin:-4px auto 2px; animation:medalPop .6s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes medalPop{0%{transform:scale(.6) rotate(-11deg); opacity:0}62%{transform:scale(1.07) rotate(3deg); opacity:1}100%{transform:scale(1) rotate(0)}}
+.big-time{display:table; font-family:var(--f-num); font-weight:800; font-size:36px; line-height:1.2; text-align:center; margin:1px auto 0; letter-spacing:1px; padding:0 8px;
+  background:linear-gradient(transparent 64%, var(--butter) 64%)}
+.fin-row{display:flex; justify-content:space-between; gap:10px; margin:0; font-size:11.5px; color:var(--ink-2)}
+.fin-row b{font-family:var(--f-num); font-weight:800; color:var(--ink)}
+.new-rec{text-align:center; font-size:11px; font-weight:700; color:var(--accent-ink); margin:3px 0 0}
+
+/* ===== 顶栏 ===== */
+.top{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 16px 2px}
+.brand{display:flex; align-items:center; gap:9px; min-width:0}
+.mascot{width:44px; flex:0 0 auto}
+.mascot svg{display:block; width:100%; height:auto}
+.brand-txt{min-width:0}
+h1{font-family:var(--f-display); font-weight:400; font-size:25px; line-height:1.1; margin:0; letter-spacing:.5px}
+.sub{margin:3px 0 0; font-size:10.5px; color:var(--ink-2); font-weight:500}
+.top-actions{display:flex; gap:6px; flex:0 0 auto}
+.icon-btn{width:34px; height:34px; border-radius:50%; border:2px solid var(--ink); background:var(--paper);
+  display:grid; place-items:center; color:var(--ink); cursor:pointer; padding:0;
+  box-shadow:0 3px 0 rgba(70,55,87,.16); transition:transform .12s, box-shadow .12s}
+.icon-btn:active{transform:translateY(2px); box-shadow:0 1px 0 rgba(70,55,87,.16)}
+.icon-btn svg{width:17px; height:17px}
+.icon-btn.off{opacity:.45}
+
+/* ===== 关卡与目标 ===== */
+.hud{padding:8px 16px 0; display:flex; flex-direction:column; gap:6px}
+.tabs{display:flex; gap:6px}
+.tab{border:2px solid var(--ink); background:var(--paper); color:var(--ink); border-radius:999px;
+  font-family:var(--f-body); font-size:12px; font-weight:700; padding:4px 11px; cursor:pointer;
+  box-shadow:0 3px 0 rgba(70,55,87,.14); transition:transform .12s, box-shadow .12s, background .16s}
+.tab:active{transform:translateY(2px); box-shadow:0 1px 0 rgba(70,55,87,.14)}
+.tab.on{background:var(--accent); box-shadow:0 3px 0 rgba(70,55,87,.28)}
+.vrow{display:flex; align-items:center; gap:7px; min-width:0}
+.vrow-label{font-size:10.5px; color:var(--ink-2); font-weight:500; flex:0 0 auto}
+.vchips{display:flex; gap:4px; flex-wrap:wrap; min-width:0}
+.vchip{font-family:var(--f-num); font-weight:800; font-size:12px; line-height:1; background:#fff;
+  border:1.5px solid rgba(70,55,87,.24); border-radius:999px; padding:3px 7px 2px; color:var(--ink)}
+.vchip.hit{background:var(--butter); border-color:var(--ink)}
+
+/* ===== 牌堆 ===== */
+.stage{flex:1 1 0; min-height:0; display:flex; align-items:center; justify-content:center; padding:8px 10px 84px}
+.board{position:relative; flex:0 0 auto}
+.board.in{animation:boardIn .32s cubic-bezier(.2,.8,.3,1) both}
+@keyframes boardIn{from{opacity:.3; transform:translateY(8px) scale(.988)} to{opacity:1; transform:none}}
+.board::before{content:""; position:absolute; inset:-9px -4px; border-radius:26px;
+  background-color:rgba(255,253,247,.88);
+  background-image:radial-gradient(rgba(70,55,87,.08) 1.4px, transparent 1.5px);
+  background-size:16px 16px;
+  box-shadow:inset 0 0 0 2px rgba(70,55,87,.09), 0 4px 0 rgba(70,55,87,.06); z-index:0}
+.tile{position:absolute; width:calc(var(--s) * .96); height:calc(var(--s) * 1.16);
+  border-radius:calc(var(--s) * .19); border:2px solid var(--ink); background:var(--paper);
+  box-shadow:0 4px 0 rgba(70,55,87,.20), inset 0 -3px 0 rgba(70,55,87,.05);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; padding:1px;
+  transition:transform .14s ease, opacity .16s ease, filter .16s ease; will-change:transform}
+.tile:hover{transform:translateY(-2px)}
+.tile.blocked{background:#F2EBDD; border-color:#83739A; box-shadow:none; cursor:default}
+.tile.blocked .tile-fml{color:#A08FB4}
+.tile.blocked .tile-el{opacity:.45}
+.tile.blocked:hover{transform:none}
+.tile.off{display:none}
+.tile.shake{animation:shake .28s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.tile.poke{animation:poke .4s}
+@keyframes poke{0%{transform:scale(1)}45%{transform:scale(1.09)}100%{transform:scale(1)}}
+.tile-el{position:absolute; top:calc(var(--s) * .05); left:calc(var(--s) * .065);
+  font-family:var(--f-num); font-weight:800; font-size:calc(var(--s) * .155); line-height:1;
+  padding:calc(var(--s) * .028) calc(var(--s) * .048); border-radius:999px;
+  border:1.5px solid rgba(70,55,87,.45); color:var(--ink)}
+.tile-fml{font-family:var(--f-num); font-weight:800; font-size:calc(var(--s) * .255); line-height:1;
+  letter-spacing:0; text-align:center; white-space:nowrap}
+.tile-fml.long{font-size:calc(var(--s) * .215); letter-spacing:-.02em}
+.tile-val{position:absolute; right:calc(var(--s) * .06); bottom:calc(var(--s) * .05);
+  font-family:var(--f-num); font-weight:800; font-size:calc(var(--s) * .19); line-height:1;
+  color:var(--accent-ink)}
+.tg{background:var(--butter); border-radius:.22em; padding:0 .1em; font-weight:800}
+sub{font-size:.66em; vertical-align:-.22em; font-weight:700}
+sup{font-size:.62em; vertical-align:.42em; font-weight:700}
+
+/* ===== 槽位 ===== */
+.traybar{flex:0 0 auto; padding:6px 14px 0; display:flex; flex-direction:column; gap:4px}
+.tray{display:flex; gap:4px; justify-content:center}
+.slot{flex:1 1 0; min-width:0; max-width:54px; aspect-ratio:1 / 1.2; border-radius:11px;
+  border:2px dashed rgba(70,55,87,.22); background:rgba(255,255,255,.55);
+  display:flex; align-items:center; justify-content:center; padding:0; overflow:hidden}
+.slot.filled{border:2px solid var(--ink); background:var(--paper); border-style:solid;
+  box-shadow:0 3px 0 rgba(70,55,87,.18)}
+.slot.pop{animation:pop .26s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{0%{transform:scale(.55) translateY(-8px); opacity:.3}100%{transform:scale(1) translateY(0); opacity:1}}
+.slot.matched{animation:cleared .38s ease forwards; background:var(--butter)}
+@keyframes cleared{0%{transform:scale(1)}40%{transform:scale(1.14) rotate(-4deg)}100%{transform:scale(.4) rotate(6deg); opacity:0}}
+.mini-fml{font-family:var(--f-num); font-weight:800; font-size:clamp(9px,3.1vw,13px); line-height:1;
+  text-align:center; white-space:nowrap}
+
+/* ===== 道具 ===== */
+.tools{flex:0 0 auto; display:flex; align-items:center; gap:6px; padding:8px 14px 16px}
+.btn{display:inline-flex; align-items:center; gap:4px; border:2px solid var(--ink); background:var(--paper);
+  color:var(--ink); border-radius:999px; padding:5px 10px; font-family:var(--f-body); font-size:11.5px;
+  font-weight:700; cursor:pointer; box-shadow:0 3px 0 rgba(70,55,87,.16);
+  transition:transform .12s, box-shadow .12s, opacity .16s}
+.btn:active{transform:translateY(2px); box-shadow:0 1px 0 rgba(70,55,87,.16)}
+.btn svg{width:14px; height:14px}
+.btn .cnt{font-family:var(--f-num); font-weight:800; font-size:10px; background:var(--accent);
+  border-radius:999px; padding:1px 5px; line-height:1.3}
+.btn[data-tool="hint"]{background:var(--butter)}
+.btn[data-tool="undo"]{background:var(--mint)}
+.btn[data-tool="shuffle"]{background:var(--sky)}
+.btn .cnt{background:rgba(255,255,255,.8); border:1px solid rgba(70,55,87,.35)}
+.btn[disabled]{opacity:.38; box-shadow:none; transform:translateY(2px)}
+.progress{flex:0 0 76px; margin-left:auto; font-size:10.5px; color:var(--ink-2); font-weight:500; text-align:right; line-height:1.4; white-space:nowrap}
+.progress b{font-family:var(--f-num); font-weight:800; font-size:13px; color:var(--ink)}
+
+/* ===== 消除笔记卡（停在棋盘与槽位之间的留白里，不压牌） ===== */
+.note{position:fixed; left:50%; top:0; transform:translate(-50%,8px);
+  width:min(92vw,430px); background:var(--paper); border:2px solid var(--ink); border-radius:14px;
+  box-shadow:0 5px 0 rgba(70,55,87,.15); padding:5px 10px 6px; z-index:30;
+  opacity:0; pointer-events:none; transition:opacity .16s, transform .16s}
+.note.show{opacity:1; transform:translate(-50%,0)}
+.note-head{display:flex; align-items:center; gap:6px; font-size:10.5px; font-weight:700}
+.note-val{font-family:var(--f-num); font-weight:800; font-size:12.5px; background:var(--butter);
+  border:1.5px solid var(--ink); border-radius:7px; padding:0 6px; line-height:1.4}
+.note-row{display:flex; align-items:baseline; gap:6px; font-family:var(--f-num);
+  font-size:10px; line-height:1.42; color:var(--ink-2); padding-top:2px}
+.note-q{font-weight:800; color:var(--ink); white-space:nowrap}
+.note-w{font-weight:600; white-space:nowrap}
+
+/* ===== 遮罩弹层 ===== */
+.fx{position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:65; display:none}
+.fx.on{display:block}
+.overlay{position:fixed; inset:0; background:rgba(70,55,87,.38); display:none;
+  align-items:center; justify-content:center; padding:18px; z-index:60}
+.overlay.show{display:flex}
+.card{background:var(--paper); border:2.5px solid var(--ink); border-radius:22px;
+  box-shadow:0 10px 0 rgba(70,55,87,.22); padding:18px 18px 16px; width:100%; max-width:390px;
+  max-height:88vh; overflow:auto; animation:cardIn .44s cubic-bezier(.3,1.55,.55,1) both}
+@keyframes cardIn{0%{transform:scale(.86) translateY(14px); opacity:0}60%{transform:scale(1.02) translateY(0); opacity:1}100%{transform:scale(1) translateY(0)}}
+.card h2{font-family:var(--f-display); font-weight:400; font-size:22px; margin:0 0 4px; letter-spacing:.5px}
+.card-sub{margin:0 0 12px; font-size:11px; color:var(--ink-2); font-weight:500}
+.rule-list{margin:0 0 12px; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px}
+.rule-list li{display:flex; gap:8px; font-size:12.5px; line-height:1.5}
+.rule-list li i{font-family:var(--f-num); font-weight:800; font-style:normal; width:19px; height:19px;
+  flex:0 0 auto; border-radius:50%; background:var(--accent); border:1.5px solid var(--ink);
+  display:grid; place-items:center; font-size:11px; margin-top:2px}
+.panelbox{background:rgba(255,255,255,.75); border:1.5px dashed rgba(70,55,87,.3);
+  border-radius:14px; padding:10px 12px; margin:0 0 12px}
+.panelbox h3{margin:0 0 6px; font-size:11.5px; font-weight:700; color:var(--ink)}
+.panelbox p{margin:0 0 5px; font-size:11.5px; line-height:1.55; color:var(--ink-2)}
+.panelbox p:last-child{margin-bottom:0}
+.panelbox b{color:var(--ink); font-family:var(--f-num); font-weight:700}
+.card-actions{display:flex; gap:8px; margin-top:2px}
+.btn-main{flex:1; justify-content:center; background:var(--accent); padding:9px 12px; font-size:13px}
+.card h2 .hl{background:var(--butter); border-radius:.3em; padding:0 .18em}
+
+/* ===== 小屏微调 ===== */
+@media (max-height:660px){
+  h1{font-size:21px}
+  .mascot{width:36px}
+  .hud{gap:4px; padding-top:5px}
+  .tools{padding-bottom:8px}
+  .note-row{padding:1px 0}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important; transition:none !important}
+}
+
+/* ===== 皮肤 v2：更软更萌 ===== */
+body{background-color:#FFF3E1}
+body::before,body::after{content:""; position:fixed; border-radius:50%; pointer-events:none; z-index:0}
+body::before{width:240px; height:240px; background:var(--mint); opacity:.18; top:-120px; right:-86px}
+body::after{width:210px; height:210px; background:var(--peach); opacity:.15; bottom:-100px; left:-86px}
+.app{z-index:1}
+
+h1{display:inline-block; padding:0 1px 2px;
+  background-image:linear-gradient(transparent 60%, rgba(255,220,139,.9) 60%, rgba(255,220,139,.9) 94%, transparent 94%);
+  background-repeat:no-repeat; background-size:100% 100%}
+.mascot{animation:floaty 3.6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(2deg)}}
+
+.board::before{border-radius:30px; background-color:#FFFBF1;
+  background-image:radial-gradient(rgba(110,84,128,.10) 1.4px, transparent 1.5px); background-size:17px 17px;
+  box-shadow:inset 0 0 0 2px rgba(110,84,128,.13), 0 6px 0 rgba(110,84,128,.07)}
+.board::after{content:""; position:absolute; top:-15px; right:17%; width:62px; height:17px;
+  background:rgba(168,229,198,.82); border-radius:4px; transform:rotate(-5deg);
+  box-shadow:0 2px 0 rgba(70,55,87,.10); z-index:1}
+
+.tile{border-radius:calc(var(--s) * .21); border-color:#54415F;
+  box-shadow:0 4px 0 rgba(84,65,95,.22), inset 0 2px 0 rgba(255,255,255,.92), inset 0 -4px 0 rgba(84,65,95,.05)}
+.tile.blocked{background:#F5EEDF; border-color:#9B8CB0}
+
+.peek{position:absolute; left:calc(var(--s) * .02); top:calc(100% + 8px);
+  width:calc(var(--s) * .56); z-index:5; pointer-events:none}
+.peek svg{display:block; width:100%; height:auto}
+@media (max-height:770px){.peek{display:none}}
+
+.tray{background:rgba(255,255,255,.5); border:1.5px solid rgba(84,65,95,.14);
+  border-radius:18px; padding:5px 6px}
+
+.card{box-shadow:inset 0 6px 0 var(--accent), 0 10px 0 rgba(84,65,95,.22);
+  scrollbar-width:none}
+.card::-webkit-scrollbar{width:0; height:0}
+.card h2{margin-top:6px}
+.card-sign{display:flex; align-items:center; justify-content:center; gap:4px;
+  margin-top:10px; padding-top:9px; border-top:1.5px dashed rgba(84,65,95,.2);
+  font-family:var(--f-num); font-weight:700; font-size:10.5px; color:var(--ink-2); letter-spacing:.4px; opacity:.85}
+.card-sign svg{width:12px; height:12px; flex:0 0 auto}
+
+.top-actions{flex-direction:column; align-items:flex-end; gap:6px}
+.top-actions .icons{display:flex; gap:6px}
+.vera{display:flex; align-items:center; gap:4px; padding:2px 8px 2px 6px;
+  border-radius:999px; background:rgba(255,252,244,.92);
+  border:1.2px dashed rgba(84,65,95,.34); transform:rotate(-2deg);
+  box-shadow:0 2px 0 rgba(84,65,95,.06); white-space:nowrap}
+.vera .chili{width:13px; height:13px; flex:0 0 auto}
+.vera .cn{font-family:var(--f-display); font-size:10.5px; color:#6A5578; letter-spacing:.4px}
+.vera .en{font-family:var(--f-num); font-style:italic; font-weight:700; font-size:10.5px; color:var(--accent-ink)}
+
+.btn{white-space:nowrap}
+@media (max-width:380px){
+  .btn{padding:5px 7px; font-size:11px}
+  .btn .cnt{font-size:9.5px}
+  .progress{flex:0 0 64px; font-size:10px}
+  h1{font-size:23px}
+  .vera{padding:2px 6px 2px 5px}
+  .mascot,.ava-lg{width:40px; height:40px}
+  .sub{font-size:9px; white-space:nowrap}
+}
+
+.mascot{width:46px}
+.ava{position:relative; display:inline-block; flex:0 0 auto; border-radius:50%;
+  border:2.5px solid #FFFDF8; background-color:#FFFDF8; overflow:hidden;
+  box-shadow:0 3px 0 rgba(84,65,95,.16), 0 0 0 1.6px rgba(84,65,95,.16)}
+.ava-lg{width:46px; height:46px}
+.ava-md{width:38px; height:38px; border-width:2px;
+  box-shadow:0 2px 0 rgba(84,65,95,.14), 0 0 0 1.3px rgba(84,65,95,.16)}
+.ava-sm{width:16px; height:16px; border-width:1.5px;
+  box-shadow:0 1px 0 rgba(84,65,95,.12), 0 0 0 1px rgba(84,65,95,.14)}
+.pkc0{background:#000000}.pkc1{background:#020204}.pkc2{background:#040404}.pkc3{background:#131216}.pkc4{background:#281E2B}.pkc5{background:#343036}.pkc6{background:#4E424B}.pkc7{background:#5F5965}.pkc8{background:#676674}.pkc9{background:#6CB4D2}.pkc10{background:#7D7A8B}.pkc11{background:#846075}.pkc12{background:#889497}.pkc13{background:#8E6C79}.pkc14{background:#937E85}.pkc15{background:#98486A}.pkc16{background:#98F2F9}.pkc17{background:#9D96A7}.pkc18{background:#9FCEE9}.pkc19{background:#A1E2F0}.pkc20{background:#AB8997}.pkc21{background:#ADA2B2}.pkc22{background:#AE989F}.pkc23{background:#B0AAC3}.pkc24{background:#B2B3CA}.pkc25{background:#BEB5C9}.pkc26{background:#C0799B}.pkc27{background:#C29BAD}.pkc28{background:#C38AA0}.pkc29{background:#C3BEDB}.pkc30{background:#C7C2E7}.pkc31{background:#CAC5EA}.pkc32{background:#CCC6EB}.pkc33{background:#CCC8EE}.pkc34{background:#CDC7EB}.pkc35{background:#CDC8EE}.pkc36{background:#CEC9EE}.pkc37{background:#CF6292}.pkc38{background:#D1CCF2}.pkc39{background:#D2CEF3}.pkc40{background:#D5D0F5}.pkc41{background:#D7C9E5}.pkc42{background:#D9D5FA}.pkc43{background:#DC9CB0}.pkc44{background:#DFC0CF}.pkc45{background:#E8AFC2}.pkc46{background:#EACFE5}.pkc47{background:#EED7EE}.pkc48{background:#F3DEE5}.pkc49{background:#F5EFE4}.pkc50{background:#FCBED1}
+.px{position:absolute; left:0; top:0; width:100%; height:100%; display:grid; grid-template-columns:repeat(36,1fr); grid-template-rows:repeat(36,1fr); box-sizing:border-box}
+.px > span{display:block}
+.ava > .px{position:absolute; left:0; top:0; width:100%; height:100%}
+.ava > img{position:absolute; left:0; top:0; width:100%; height:100%; display:block}
+.ava > img{object-fit:cover}
+
+.card-head{display:flex; align-items:center; gap:9px; margin:4px 0 6px}
+.card-head h2{margin:0}
+
+
+.card-sign{gap:6px}
+
+</style>
+</head>
+<body data-lv="1">
+<div class="app">
+
+  <div class="home" id="home">
+    <div class="home-brand">
+      <span class="ava ava-lg"><div class="px" aria-hidden="true"></div><img class="ava-img" alt=""></span>
+      <h1>氧了个氧</h1>
+      <p>氧化数消消乐 · oxidation number</p>
+    </div>
+    <div class="home-inner">
+      <div class="home-tips">
+        <p><span>1</span>点一张牌，滑进下方 7 格槽位。</p>
+        <p><span>2</span>三张牌目标元素的化合价相同就消除。</p>
+        <p><span>3</span>槽位满 7 格凑不出三连，本局结束。</p>
+      </div>
+      <button class="mode-card" data-act="mode-challenge">
+        <span class="mode-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="13.4" r="7.4"/><path d="M12 9.8v3.8l2.6 1.9"/><path d="M9.6 3.6h4.8"/><path d="M12 3.6v1.8"/></svg></span>
+        <span class="mode-tx"><b>挑战模式</b><i>三关连闯，通关才解锁下一关；第三关结束统计总用时</i></span>
+      </button>
+      <button class="mode-card" data-act="mode-practice">
+        <span class="mode-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+          <rect x="3.5" y="3.5" width="9.5" height="9.5" rx="2.4"/><rect x="11" y="11" width="9.5" height="9.5" rx="2.4"/></svg></span>
+        <span class="mode-tx"><b>练习模式</b><i>任意选关，每关结束看这一关的化合价口诀</i></span>
+      </button>
+      <p class="home-best" id="homeBest">挑战模式还没有记录，先闯一次吧</p>
+    </div>
+    <div class="home-foot">
+      <button class="ghost-btn" data-act="rules">玩法 · 口诀</button>
+      <button class="ghost-btn" data-act="sound">音效开关</button>
+    </div>
+    <div class="home-sign"><span class="ava ava-sm"><div class="px" aria-hidden="true"></div><img class="ava-img" alt=""></span><span>微辣化学 Vera</span></div>
+  </div>
+
+  <header class="top">
+    <div class="brand">
+      <div class="mascot" id="mascot">
+        <span class="ava ava-lg" role="img" aria-label="微辣化学 Vera"><div class="px" id="avaHeroPx"><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc21"></span><span class="pkc20"></span><span class="pkc10"></span><span class="pkc29"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc38"></span><span class="pkc40"></span><span class="pkc42"></span><span class="pkc23"></span><span class="pkc28"></span><span class="pkc23"></span><span class="pkc29"></span><span class="pkc30"></span><span class="pkc35"></span><span class="pkc40"></span><span class="pkc31"></span><span class="pkc30"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc38"></span><span class="pkc31"></span><span class="pkc30"></span><span class="pkc33"></span><span class="pkc23"></span><span class="pkc27"></span><span class="pkc42"></span><span class="pkc39"></span><span class="pkc36"></span><span class="pkc39"></span><span class="pkc42"></span><span class="pkc22"></span><span class="pkc22"></span><span class="pkc30"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc36"></span><span class="pkc30"></span><span class="pkc38"></span><span class="pkc32"></span><span class="pkc36"></span><span class="pkc42"></span><span class="pkc17"></span><span class="pkc7"></span><span class="pkc7"></span><span class="pkc7"></span><span class="pkc7"></span><span class="pkc7"></span><span class="pkc8"></span><span class="pkc22"></span><span class="pkc50"></span><span class="pkc17"></span><span class="pkc31"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc30"></span><span class="pkc31"></span><span class="pkc31"></span><span class="pkc17"></span><span class="pkc31"></span><span class="pkc29"></span><span class="pkc8"></span><span class="pkc7"></span><span class="pkc13"></span><span class="pkc20"></span><span class="pkc43"></span><span class="pkc43"></span><span class="pkc28"></span><span class="pkc13"></span><span class="pkc20"></span><span class="pkc50"></span><span class="pkc27"></span><span class="pkc39"></span><span class="pkc42"></span><span class="pkc39"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc40"></span><span class="pkc33"></span><span class="pkc38"></span><span class="pkc40"></span><span class="pkc24"></span><span class="pkc27"></span><span class="pkc20"></span><span class="pkc11"></span><span class="pkc28"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc45"></span><span class="pkc43"></span><span class="pkc20"></span><span class="pkc14"></span><span class="pkc7"></span><span class="pkc10"></span><span class="pkc10"></span><span class="pkc10"></span><span class="pkc8"></span><span class="pkc24"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc40"></span><span class="pkc31"></span><span class="pkc24"></span><span class="pkc23"></span><span class="pkc23"></span><span class="pkc17"></span><span class="pkc43"></span><span class="pkc20"></span><span class="pkc50"></span><span class="pkc45"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc45"></span><span class="pkc45"></span><span class="pkc50"></span><span class="pkc45"></span><span class="pkc14"></span><span class="pkc12"></span><span class="pkc12"></span><span class="pkc11"></span><span class="pkc4"></span><span class="pkc5"></span><span class="pkc5"></span><span class="pkc15"></span><span class="pkc20"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc38"></span><span class="pkc23"></span><span class="pkc21"></span><span class="pkc41"></span><span class="pkc21"></span><span class="pkc17"></span><span class="pkc14"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc45"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc28"></span><span class="pkc43"></span><span class="pkc43"></span><span class="pkc12"></span><span class="pkc12"></span><span class="pkc8"></span><span class="pkc45"></span><span class="pkc7"></span><span class="pkc5"></span><span class="pkc7"></span><span class="pkc37"></span><span class="pkc21"></span><span class="pkc36"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc30"></span><span class="pkc35"></span><span class="pkc29"></span><span class="pkc22"></span><span class="pkc49"></span><span class="pkc24"></span><span class="pkc12"></span><span class="pkc27"></span><span class="pkc43"></span><span class="pkc20"></span><span class="pkc28"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc20"></span><span class="pkc43"></span><span class="pkc28"></span><span class="pkc20"></span><span class="pkc22"></span><span class="pkc43"></span><span class="pkc43"></span><span class="pkc20"></span><span class="pkc6"></span><span class="pkc37"></span><span class="pkc20"></span><span class="pkc39"></span><span class="pkc38"></span><span class="pkc30"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc38"></span><span class="pkc31"></span><span class="pkc41"></span><span class="pkc48"></span><span class="pkc22"></span><span class="pkc49"></span><span class="pkc42"></span><span class="pkc8"></span><span class="pkc43"></span><span class="pkc45"></span><span class="pkc14"></span><span class="pkc14"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc20"></span><span class="pkc7"></span><span class="pkc4"></span><span class="pkc14"></span><span class="pkc27"></span><span class="pkc11"></span><span class="pkc14"></span><span class="pkc43"></span><span class="pkc13"></span><span class="pkc13"></span><span class="pkc27"></span><span class="pkc27"></span><span class="pkc23"></span><span class="pkc38"></span><span class="pkc36"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc30"></span><span class="pkc34"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc21"></span><span class="pkc49"></span><span class="pkc49"></span><span class="pkc21"></span><span class="pkc11"></span><span class="pkc43"></span><span class="pkc6"></span><span class="pkc3"></span><span class="pkc13"></span><span class="pkc50"></span><span class="pkc45"></span><span class="pkc28"></span><span class="pkc10"></span><span class="pkc2"></span><span class="pkc49"></span><span class="pkc46"></span><span class="pkc0"></span><span class="pkc20"></span><span class="pkc50"></span><span class="pkc28"></span><span class="pkc43"></span><span class="pkc45"></span><span class="pkc37"></span><span class="pkc22"></span><span class="pkc40"></span><span class="pkc30"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc40"></span><span class="pkc30"></span><span class="pkc46"></span><span class="pkc48"></span><span class="pkc45"></span><span class="pkc25"></span><span class="pkc42"></span><span class="pkc19"></span><span class="pkc42"></span><span class="pkc22"></span><span class="pkc6"></span><span class="pkc4"></span><span class="pkc7"></span><span class="pkc41"></span><span class="pkc11"></span><span class="pkc28"></span><span class="pkc20"></span><span class="pkc17"></span><span class="pkc1"></span><span class="pkc5"></span><span class="pkc4"></span><span class="pkc4"></span><span class="pkc27"></span><span class="pkc50"></span><span class="pkc43"></span><span class="pkc37"></span><span class="pkc37"></span><span class="pkc20"></span><span class="pkc46"></span><span class="pkc46"></span><span class="pkc31"></span><span class="pkc39"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc38"></span><span class="pkc32"></span><span class="pkc32"></span><span class="pkc46"></span><span class="pkc48"></span><span class="pkc21"></span><span class="pkc18"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc18"></span><span class="pkc14"></span><span class="pkc4"></span><span class="pkc5"></span><span class="pkc17"></span><span class="pkc7"></span><span class="pkc49"></span><span class="pkc49"></span><span class="pkc44"></span><span class="pkc10"></span><span class="pkc3"></span><span class="pkc5"></span><span class="pkc17"></span><span class="pkc27"></span><span class="pkc50"></span><span class="pkc43"></span><span class="pkc7"></span><span class="pkc25"></span><span class="pkc46"></span><span class="pkc48"></span><span class="pkc46"></span><span class="pkc32"></span><span class="pkc32"></span><span class="pkc39"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc31"></span><span class="pkc34"></span><span class="pkc48"></span><span class="pkc50"></span><span class="pkc21"></span><span class="pkc18"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc11"></span><span class="pkc2"></span><span class="pkc0"></span><span class="pkc14"></span><span class="pkc49"></span><span class="pkc49"></span><span class="pkc48"></span><span class="pkc44"></span><span class="pkc44"></span><span class="pkc44"></span><span class="pkc27"></span><span class="pkc50"></span><span class="pkc45"></span><span class="pkc43"></span><span class="pkc13"></span><span class="pkc44"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc46"></span><span class="pkc34"></span><span class="pkc31"></span><span class="pkc40"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc39"></span><span class="pkc31"></span><span class="pkc32"></span><span class="pkc48"></span><span class="pkc45"></span><span class="pkc24"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc21"></span><span class="pkc25"></span><span class="pkc22"></span><span class="pkc48"></span><span class="pkc46"></span><span class="pkc44"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc50"></span><span class="pkc28"></span><span class="pkc20"></span><span class="pkc28"></span><span class="pkc28"></span><span class="pkc28"></span><span class="pkc13"></span><span class="pkc20"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc46"></span><span class="pkc32"></span><span class="pkc32"></span><span class="pkc38"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc36"></span><span class="pkc34"></span><span class="pkc31"></span><span class="pkc47"></span><span class="pkc43"></span><span class="pkc24"></span><span class="pkc19"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc13"></span><span class="pkc44"></span><span class="pkc44"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc49"></span><span class="pkc49"></span><span class="pkc49"></span><span class="pkc11"></span><span class="pkc21"></span><span class="pkc25"></span><span class="pkc20"></span><span class="pkc50"></span><span class="pkc28"></span><span class="pkc20"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc46"></span><span class="pkc31"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc31"></span><span class="pkc46"></span><span class="pkc46"></span><span class="pkc22"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc9"></span><span class="pkc17"></span><span class="pkc13"></span><span class="pkc13"></span><span class="pkc14"></span><span class="pkc21"></span><span class="pkc44"></span><span class="pkc49"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc25"></span><span class="pkc14"></span><span class="pkc25"></span><span class="pkc27"></span><span class="pkc48"></span><span class="pkc22"></span><span class="pkc45"></span><span class="pkc43"></span><span class="pkc20"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc41"></span><span class="pkc33"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc33"></span><span class="pkc34"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc45"></span><span class="pkc43"></span><span class="pkc43"></span><span class="pkc20"></span><span class="pkc13"></span><span class="pkc17"></span><span class="pkc29"></span><span class="pkc20"></span><span class="pkc7"></span><span class="pkc11"></span><span class="pkc7"></span><span class="pkc20"></span><span class="pkc11"></span><span class="pkc11"></span><span class="pkc20"></span><span class="pkc44"></span><span class="pkc21"></span><span class="pkc46"></span><span class="pkc10"></span><span class="pkc43"></span><span class="pkc28"></span><span class="pkc44"></span><span class="pkc48"></span><span class="pkc46"></span><span class="pkc33"></span><span class="pkc35"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc31"></span><span class="pkc46"></span><span class="pkc48"></span><span class="pkc42"></span><span class="pkc42"></span><span class="pkc48"></span><span class="pkc48"></span><span class="pkc39"></span><span class="pkc17"></span><span class="pkc13"></span><span class="pkc22"></span><span class="pkc11"></span><span class="pkc5"></span><span class="pkc11"></span><span class="pkc28"></span><span class="pkc20"></span><span class="pkc11"></span><span class="pkc20"></span><span class="pkc5"></span><span class="pkc7"></span><span class="pkc21"></span><span class="pkc10"></span><span class="pkc28"></span><span class="pkc13"></span><span class="pkc46"></span><span class="pkc48"></span><span class="pkc41"></span><span class="pkc31"></span><span class="pkc35"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc32"></span><span class="pkc32"></span><span class="pkc32"></span><span class="pkc46"></span><span class="pkc19"></span><span class="pkc16"></span><span class="pkc43"></span><span class="pkc44"></span><span class="pkc16"></span><span class="pkc23"></span><span class="pkc37"></span><span class="pkc50"></span><span class="pkc11"></span><span class="pkc4"></span><span class="pkc13"></span><span class="pkc13"></span><span class="pkc6"></span><span class="pkc4"></span><span class="pkc15"></span><span class="pkc21"></span><span class="pkc11"></span><span class="pkc13"></span><span class="pkc43"></span><span class="pkc26"></span><span class="pkc28"></span><span class="pkc20"></span><span class="pkc47"></span><span class="pkc31"></span><span class="pkc35"></span><span class="pkc35"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc36"></span><span class="pkc34"></span><span class="pkc32"></span><span class="pkc32"></span><span class="pkc31"></span><span class="pkc41"></span><span class="pkc19"></span><span class="pkc16"></span><span class="pkc37"></span><span class="pkc29"></span><span class="pkc16"></span><span class="pkc37"></span><span class="pkc37"></span><span class="pkc24"></span><span class="pkc12"></span><span class="pkc8"></span><span class="pkc6"></span><span class="pkc8"></span><span class="pkc8"></span><span class="pkc10"></span><span class="pkc17"></span><span class="pkc48"></span><span class="pkc41"></span><span class="pkc23"></span><span class="pkc41"></span><span class="pkc21"></span><span class="pkc22"></span><span class="pkc14"></span><span class="pkc42"></span><span class="pkc31"></span><span class="pkc35"></span><span class="pkc35"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc39"></span><span class="pkc32"></span><span class="pkc32"></span><span class="pkc33"></span><span class="pkc32"></span><span class="pkc38"></span><span class="pkc19"></span><span class="pkc16"></span><span class="pkc26"></span><span class="pkc19"></span><span class="pkc24"></span><span class="pkc37"></span><span class="pkc19"></span><span class="pkc19"></span><span class="pkc19"></span><span class="pkc16"></span><span class="pkc27"></span><span class="pkc16"></span><span class="pkc16"></span><span class="pkc16"></span><span class="pkc16"></span><span class="pkc25"></span><span class="pkc16"></span><span class="pkc19"></span><span class="pkc16"></span><span class="pkc19"></span><span class="pkc13"></span><span class="pkc8"></span><span class="pkc24"></span><span class="pkc39"></span><span class="pkc34"></span><span class="pkc35"></span><span class="pkc32"></span><span class="pkc38"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc40"></span><span class="pkc31"></span><span class="pkc32"></span><span class="pkc33"></span><span class="pkc38"></span><span class="pkc23"></span><span class="pkc18"></span><span class="pkc19"></span><span class="pkc23"></span><span class="pkc16"></span><span class="pkc28"></span><span class="pkc28"></span><span class="pkc16"></span><span class="pkc23"></span><span class="pkc23"></span><span class="pkc18"></span><span class="pkc37"></span><span class="pkc16"></span><span class="pkc27"></span><span class="pkc22"></span><span class="pkc23"></span><span class="pkc23"></span><span class="pkc19"></span><span class="pkc37"></span><span class="pkc18"></span><span class="pkc24"></span><span class="pkc37"></span><span class="pkc14"></span><span class="pkc20"></span><span class="pkc24"></span><span class="pkc38"></span><span class="pkc34"></span><span class="pkc31"></span><span class="pkc40"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc39"></span><span class="pkc32"></span><span class="pkc33"></span><span class="pkc36"></span><span class="pkc31"></span><span class="pkc20"></span><span class="pkc24"></span><span class="pkc16"></span><span class="pkc19"></span><span class="pkc19"></span><span class="pkc37"></span><span class="pkc29"></span><span class="pkc16"></span><span class="pkc27"></span><span class="pkc23"></span><span class="pkc23"></span><span class="pkc20"></span><span class="pkc16"></span><span class="pkc43"></span><span class="pkc15"></span><span class="pkc43"></span><span class="pkc19"></span><span class="pkc19"></span><span class="pkc27"></span><span class="pkc16"></span><span class="pkc24"></span><span class="pkc37"></span><span class="pkc50"></span><span class="pkc43"></span><span class="pkc17"></span><span class="pkc40"></span><span class="pkc32"></span><span class="pkc31"></span><span class="pkc40"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc39"></span><span class="pkc31"></span><span class="pkc32"></span><span class="pkc33"></span><span class="pkc13"></span><span class="pkc24"></span><span class="pkc19"></span><span class="pkc19"></span><span class="pkc23"></span><span class="pkc37"></span><span class="pkc49"></span><span class="pkc19"></span><span class="pkc19"></span><span class="pkc19"></span><span class="pkc26"></span><span class="pkc17"></span><span class="pkc16"></span><span class="pkc37"></span><span class="pkc11"></span><span class="pkc44"></span><span class="pkc42"></span><span class="pkc16"></span><span class="pkc18"></span><span class="pkc18"></span><span class="pkc19"></span><span class="pkc37"></span><span class="pkc45"></span><span class="pkc26"></span><span class="pkc21"></span><span class="pkc40"></span><span class="pkc32"></span><span class="pkc38"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc30"></span><span class="pkc34"></span><span class="pkc30"></span><span class="pkc14"></span><span class="pkc28"></span><span class="pkc43"></span><span class="pkc37"></span><span class="pkc37"></span><span class="pkc43"></span><span class="pkc21"></span><span class="pkc13"></span><span class="pkc26"></span><span class="pkc37"></span><span class="pkc15"></span><span class="pkc6"></span><span class="pkc6"></span><span class="pkc15"></span><span class="pkc6"></span><span class="pkc44"></span><span class="pkc48"></span><span class="pkc44"></span><span class="pkc37"></span><span class="pkc26"></span><span class="pkc37"></span><span class="pkc37"></span><span class="pkc13"></span><span class="pkc14"></span><span class="pkc35"></span><span class="pkc36"></span><span class="pkc31"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc36"></span><span class="pkc31"></span><span class="pkc33"></span><span class="pkc22"></span><span class="pkc45"></span><span class="pkc50"></span><span class="pkc50"></span><span class="pkc13"></span><span class="pkc7"></span><span class="pkc14"></span><span class="pkc20"></span><span class="pkc20"></span><span class="pkc48"></span><span class="pkc8"></span><span class="pkc14"></span><span class="pkc14"></span><span class="pkc14"></span><span class="pkc6"></span><span class="pkc20"></span><span class="pkc21"></span><span class="pkc17"></span><span class="pkc17"></span><span class="pkc23"></span><span class="pkc17"></span><span class="pkc21"></span><span class="pkc24"></span><span class="pkc38"></span><span class="pkc36"></span><span class="pkc32"></span><span class="pkc36"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc30"></span><span class="pkc38"></span><span class="pkc29"></span><span class="pkc14"></span><span class="pkc20"></span><span class="pkc20"></span><span class="pkc24"></span><span class="pkc29"></span><span class="pkc10"></span><span class="pkc12"></span><span class="pkc29"></span><span class="pkc25"></span><span class="pkc14"></span><span class="pkc8"></span><span class="pkc22"></span><span class="pkc27"></span><span class="pkc13"></span><span class="pkc23"></span><span class="pkc21"></span><span class="pkc24"></span><span class="pkc24"></span><span class="pkc12"></span><span class="pkc38"></span><span class="pkc40"></span><span class="pkc39"></span><span class="pkc34"></span><span class="pkc32"></span><span class="pkc30"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc30"></span><span class="pkc38"></span><span class="pkc33"></span><span class="pkc29"></span><span class="pkc31"></span><span class="pkc38"></span><span class="pkc38"></span><span class="pkc33"></span><span class="pkc36"></span><span class="pkc29"></span><span class="pkc22"></span><span class="pkc49"></span><span class="pkc44"></span><span class="pkc14"></span><span class="pkc6"></span><span class="pkc5"></span><span class="pkc36"></span><span class="pkc40"></span><span class="pkc40"></span><span class="pkc10"></span><span class="pkc5"></span><span class="pkc17"></span><span class="pkc40"></span><span class="pkc31"></span><span class="pkc34"></span><span class="pkc30"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc39"></span><span class="pkc30"></span><span class="pkc35"></span><span class="pkc38"></span><span class="pkc36"></span><span class="pkc32"></span><span class="pkc31"></span><span class="pkc33"></span><span class="pkc40"></span><span class="pkc8"></span><span class="pkc48"></span><span class="pkc49"></span><span class="pkc49"></span><span class="pkc49"></span><span class="pkc5"></span><span class="pkc8"></span><span class="pkc40"></span><span class="pkc36"></span><span class="pkc24"></span><span class="pkc5"></span><span class="pkc5"></span><span class="pkc17"></span><span class="pkc40"></span><span class="pkc31"></span><span class="pkc30"></span><span class="pkc38"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc39"></span><span class="pkc30"></span><span class="pkc32"></span><span class="pkc34"></span><span class="pkc35"></span><span class="pkc32"></span><span class="pkc39"></span><span class="pkc10"></span><span class="pkc4"></span><span class="pkc14"></span><span class="pkc49"></span><span class="pkc49"></span><span class="pkc22"></span><span class="pkc12"></span><span class="pkc31"></span><span class="pkc36"></span><span class="pkc35"></span><span class="pkc36"></span><span class="pkc6"></span><span class="pkc10"></span><span class="pkc42"></span><span class="pkc31"></span><span class="pkc30"></span><span class="pkc39"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc30"></span><span class="pkc32"></span><span class="pkc31"></span><span class="pkc42"></span><span class="pkc10"></span><span class="pkc4"></span><span class="pkc6"></span><span class="pkc4"></span><span class="pkc6"></span><span class="pkc7"></span><span class="pkc23"></span><span class="pkc42"></span><span class="pkc33"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc39"></span><span class="pkc30"></span><span class="pkc30"></span><span class="pkc34"></span><span class="pkc30"></span><span class="pkc40"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc36"></span><span class="pkc30"></span><span class="pkc38"></span><span class="pkc7"></span><span class="pkc5"></span><span class="pkc5"></span><span class="pkc6"></span><span class="pkc6"></span><span class="pkc8"></span><span class="pkc42"></span><span class="pkc31"></span><span class="pkc33"></span><span class="pkc34"></span><span class="pkc32"></span><span class="pkc31"></span><span class="pkc33"></span><span class="pkc31"></span><span class="pkc35"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc42"></span><span class="pkc24"></span><span class="pkc13"></span><span class="pkc22"></span><span class="pkc5"></span><span class="pkc5"></span><span class="pkc11"></span><span class="pkc39"></span><span class="pkc36"></span><span class="pkc33"></span><span class="pkc33"></span><span class="pkc32"></span><span class="pkc31"></span><span class="pkc32"></span><span class="pkc38"></span><span class="pkc42"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc17"></span><span class="pkc22"></span><span class="pkc13"></span><span class="pkc12"></span><span class="pkc29"></span><span class="pkc36"></span><span class="pkc32"></span><span class="pkc32"></span><span class="pkc34"></span><span class="pkc38"></span><span class="pkc40"></span><span class="pkc40"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc38"></span><span class="pkc31"></span><span class="pkc32"></span><span class="pkc32"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span><span class="pkc34"></span></div><img class="ava-img" alt=""></span>
+      </div>
+      <div class="brand-txt">
+        <h1>氧了个氧</h1>
+        <p class="sub">氧化数消消乐 · oxidation number</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="icons">
+      <button class="icon-btn" id="btnHome" aria-label="回到主界面">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 11 12 4.2 20 11"/><path d="M6.5 9.8V19h11V9.8"/><path d="M10 19v-5h4v5"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="btnRules" aria-label="化合价口诀速查">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3.5 5.5h5.5a3 3 0 0 1 3 3V18.5a2.5 2.5 0 0 0-2.5-2.5H3.5Z"/>
+          <path d="M20.5 5.5h-5.5a3 3 0 0 0-3 3V18.5a2.5 2.5 0 0 1 2.5-2.5H20.5Z"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="btnSound" aria-label="音效开关">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4Z"/><path d="M16 9.2a4 4 0 0 1 0 5.6"/>
+        </svg>
+      </button>
+      </div>
+      <div class="vera" aria-label="微辣化学 Vera">
+        <svg class="chili" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M17.4 5.6c2.7 1.6 2.4 5.7-.7 9.3-2.5 2.9-6.3 4.4-9.1 3.5" fill="none" stroke="#FF9C7E" stroke-width="4.6" stroke-linecap="round"/>
+          <path d="M17.4 5.6c-.7-1.5.4-2.8 2-3" fill="none" stroke="#54415F" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="cn">微辣化学</span><span class="en">Vera</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="hud">
+    <div class="tabs" id="tabs"></div>
+    <div class="vrow">
+      <span class="vrow-label">本关化合价</span>
+      <div class="vchips" id="vchips"></div>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="traybar">
+    <div class="tray" id="tray"></div>
+  </div>
+
+  <div class="tools">
+    <button class="btn" data-tool="hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3.5a5.5 5.5 0 0 1 3.2 9.9l-.4 2.1H9.2l-.4-2.1A5.5 5.5 0 0 1 12 3.5Z"/>
+        <path d="M9.8 18.6h4.4"/>
+      </svg>
+      提示<b class="cnt" id="cntHint">3</b>
+    </button>
+    <button class="btn" data-tool="undo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4.5 10.5h9a4.5 4.5 0 0 1 0 9H9"/><path d="M8.5 6.2 4.2 10.5l4.3 4.3"/>
+      </svg>
+      撤回<b class="cnt" id="cntUndo">2</b>
+    </button>
+    <button class="btn" data-tool="shuffle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3.5 6.5h3.2l10 11h3.8"/><path d="M3.5 17.5h3.2L10 13"/><path d="M17.6 3.4 21 6.5l-3.4 3.1"/><path d="M17.6 14.4 21 17.5l-3.4 3.1"/>
+      </svg>
+      洗牌<b class="cnt" id="cntShuffle">1</b>
+    </button>
+    <div class="progress">
+      槽位 <b id="slotCount">0</b>/7<br>已消 <b id="done">0</b>/<span id="total">8</span><span class="clk" id="clkWrap" style="display:none"><br><button class="pausechip" id="btnPause" aria-label="暂停计时"><svg viewBox="0 0 24 24"><path d="M9 6v12"/><path d="M15 6v12"/></svg><b id="clock">00:00</b></button></span>
+    </div>
+  </div>
+
+  <div class="note" id="note"></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="pause" id="pause">
+    <div class="pause-inner">
+      <span class="pause-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#463757" stroke-width="3.2" stroke-linecap="round"><path d="M9 5.5v13"/><path d="M15 5.5v13"/></svg></span>
+      <h2>暂停中</h2>
+      <p class="pause-sub">休time~大脑重启中㋡</p>
+      <p class="pause-time" id="pauseTime">00:00</p>
+      <button class="btn btn-main" id="btnResume">继续挑战</button>
+      <button class="ghost-btn" id="btnPauseHome">回主界面</button>
+    </div>
+  </div>
+  <canvas class="fx" id="fx" aria-hidden="true"></canvas>
+  <div class="overlay" id="overlay"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ===== 题库：9701 6.1 calculate oxidation numbers of elements in compounds and ions ===== */
+  var SPECIES = [
+    /* −3 */
+    { q: 'NH3', el: 'N', cg: '', v: -3, t: 1, w: 'x + 3(+1) = 0 → x = −3' },
+    { q: 'NH4', el: 'N', cg: '+', v: -3, t: 2, w: 'x + 4(+1) = +1 → x = −3' },
+    { q: 'PH3', el: 'P', cg: '', v: -3, t: 2, w: 'x + 3(+1) = 0 → x = −3' },
+    { q: 'Li3N', el: 'N', cg: '', v: -3, t: 3, w: '3(+1) + x = 0 → x = −3' },
+    /* −2 */
+    { q: 'H2O', el: 'O', cg: '', v: -2, t: 1, w: '2(+1) + x = 0 → x = −2' },
+    { q: 'H2S', el: 'S', cg: '', v: -2, t: 1, w: '2(+1) + x = 0 → x = −2' },
+    { q: 'MgO', el: 'O', cg: '', v: -2, t: 1, w: '(+2) + x = 0 → x = −2' },
+    { q: 'CO2', el: 'O', cg: '', v: -2, t: 1, w: '(+4) + 2x = 0 → x = −2' },
+    { q: 'N2H4', el: 'N', cg: '', v: -2, t: 3, w: '2x + 4(+1) = 0 → x = −2' },
+    /* −1 */
+    { q: 'HCl', el: 'Cl', cg: '', v: -1, t: 1, w: '(+1) + x = 0 → x = −1' },
+    { q: 'H2O2', el: 'O', cg: '', v: -1, t: 3, w: '2(+1) + 2x = 0 → x = −1' },
+    { q: 'NaH', el: 'H', cg: '', v: -1, t: 3, w: '(+1) + x = 0 → x = −1' },
+    { q: 'LiAlH4', el: 'H', cg: '', v: -1, t: 3, w: '(+1) + (+3) + 4x = 0 → x = −1' },
+    { q: 'KI', el: 'I', cg: '', v: -1, t: 2, w: '(+1) + x = 0 → x = −1' },
+    { q: 'HBr', el: 'Br', cg: '', v: -1, t: 2, w: '(+1) + x = 0 → x = −1' },
+    { q: 'NaCl', el: 'Cl', cg: '', v: -1, t: 1, w: '(+1) + x = 0 → x = −1' },
+    /* 0 */
+    { q: 'H2', el: 'H', cg: '', v: 0, t: 1, w: '单质中元素化合价 = 0' },
+    { q: 'Cl2', el: 'Cl', cg: '', v: 0, t: 1, w: '单质中元素化合价 = 0' },
+    { q: 'Fe', el: 'Fe', cg: '', v: 0, t: 1, w: '单质中元素化合价 = 0' },
+    { q: 'N2', el: 'N', cg: '', v: 0, t: 1, w: '单质中元素化合价 = 0' },
+    { q: 'P4', el: 'P', cg: '', v: 0, t: 1, w: '单质中元素化合价 = 0' },
+    { q: 'O2', el: 'O', cg: '', v: 0, t: 1, w: '单质中元素化合价 = 0' },
+    { q: 'S8', el: 'S', cg: '', v: 0, t: 1, w: '单质中元素化合价 = 0' },
+    { q: 'Cu', el: 'Cu', cg: '', v: 0, t: 1, w: '单质中元素化合价 = 0' },
+    /* +1 */
+    { q: 'H2O', el: 'H', cg: '', v: 1, t: 1, w: '2x + (−2) = 0 → x = +1' },
+    { q: 'H3O', el: 'H', cg: '+', v: 1, t: 3, w: '3x + (−2) = +1 → x = +1' },
+    { q: 'NaCl', el: 'Na', cg: '', v: 1, t: 1, w: 'x + (−1) = 0 → x = +1' },
+    { q: 'KBr', el: 'K', cg: '', v: 1, t: 1, w: 'x + (−1) = 0 → x = +1' },
+    { q: 'HClO', el: 'Cl', cg: '', v: 1, t: 2, w: '(+1) + x + (−2) = 0 → x = +1' },
+    { q: 'Cu2O', el: 'Cu', cg: '', v: 1, t: 2, w: '2x + (−2) = 0 → x = +1' },
+    { q: 'N2O', el: 'N', cg: '', v: 1, t: 1, w: '2x + (−2) = 0 → x = +1' },
+    { q: 'NaClO', el: 'Cl', cg: '', v: 1, t: 2, w: '(+1) + x + (−2) = 0 → x = +1' },
+    { q: 'CuCl', el: 'Cu', cg: '', v: 1, t: 2, w: 'x + (−1) = 0 → x = +1' },
+    /* +2 */
+    { q: 'CaO', el: 'Ca', cg: '', v: 2, t: 1, w: 'x + (−2) = 0 → x = +2' },
+    { q: 'MgCl2', el: 'Mg', cg: '', v: 2, t: 1, w: 'x + 2(−1) = 0 → x = +2' },
+    { q: 'FeCl2', el: 'Fe', cg: '', v: 2, t: 1, w: 'x + 2(−1) = 0 → x = +2' },
+    { q: 'CuSO4', el: 'Cu', cg: '', v: 2, t: 2, w: 'x + (+6) + 4(−2) = 0 → x = +2' },
+    { q: 'NO', el: 'N', cg: '', v: 2, t: 1, w: 'x + (−2) = 0 → x = +2' },
+    { q: 'S2O3', el: 'S', cg: '2-', v: 2, t: 2, w: '2x + 3(−2) = −2 → x = +2' },
+    { q: 'MnSO4', el: 'Mn', cg: '', v: 2, t: 2, w: 'x + (+6) + 4(−2) = 0 → x = +2' },
+    { q: 'FeSO4', el: 'Fe', cg: '', v: 2, t: 2, w: 'x + (+6) + 4(−2) = 0 → x = +2' },
+    { q: 'OF2', el: 'O', cg: '', v: 2, t: 3, w: 'x + 2(−1) = 0 → x = +2' },
+    /* +3 */
+    { q: 'Al2O3', el: 'Al', cg: '', v: 3, t: 1, w: '2x + 3(−2) = 0 → x = +3' },
+    { q: 'Fe2O3', el: 'Fe', cg: '', v: 3, t: 1, w: '2x + 3(−2) = 0 → x = +3' },
+    { q: 'Fe', el: 'Fe', cg: '3+', v: 3, t: 2, w: '单原子离子：x = 所带电荷 = +3' },
+    { q: 'NO2', el: 'N', cg: '-', v: 3, t: 2, w: 'x + 2(−2) = −1 → x = +3' },
+    { q: 'Cr2O3', el: 'Cr', cg: '', v: 3, t: 2, w: '2x + 3(−2) = 0 → x = +3' },
+    { q: 'HNO2', el: 'N', cg: '', v: 3, t: 2, w: '(+1) + x + 2(−2) = 0 → x = +3' },
+    { q: 'PCl3', el: 'P', cg: '', v: 3, t: 2, w: 'x + 3(−1) = 0 → x = +3' },
+    /* +4 */
+    { q: 'SO2', el: 'S', cg: '', v: 4, t: 1, w: 'x + 2(−2) = 0 → x = +4' },
+    { q: 'CO2', el: 'C', cg: '', v: 4, t: 1, w: 'x + 2(−2) = 0 → x = +4' },
+    { q: 'CO3', el: 'C', cg: '2-', v: 4, t: 2, w: 'x + 3(−2) = −2 → x = +4' },
+    { q: 'SO3', el: 'S', cg: '2-', v: 4, t: 2, w: 'x + 3(−2) = −2 → x = +4' },
+    { q: 'MnO2', el: 'Mn', cg: '', v: 4, t: 2, w: 'x + 2(−2) = 0 → x = +4' },
+    { q: 'NO2', el: 'N', cg: '', v: 4, t: 2, w: 'x + 2(−2) = 0 → x = +4' },
+    { q: 'Na2SO3', el: 'S', cg: '', v: 4, t: 2, w: '2(+1) + x + 3(−2) = 0 → x = +4' },
+    { q: 'CaCO3', el: 'C', cg: '', v: 4, t: 2, w: '(+2) + x + 3(−2) = 0 → x = +4' },
+    /* +5 */
+    { q: 'HNO3', el: 'N', cg: '', v: 5, t: 1, w: '(+1) + x + 3(−2) = 0 → x = +5' },
+    { q: 'NO3', el: 'N', cg: '-', v: 5, t: 2, w: 'x + 3(−2) = −1 → x = +5' },
+    { q: 'PO4', el: 'P', cg: '3-', v: 5, t: 2, w: 'x + 4(−2) = −3 → x = +5' },
+    { q: 'ClO3', el: 'Cl', cg: '-', v: 5, t: 2, w: 'x + 3(−2) = −1 → x = +5' },
+    { q: 'N2O5', el: 'N', cg: '', v: 5, t: 2, w: '2x + 5(−2) = 0 → x = +5' },
+    { q: 'V2O5', el: 'V', cg: '', v: 5, t: 3, w: '2x + 5(−2) = 0 → x = +5' },
+    /* +6 */
+    { q: 'H2SO4', el: 'S', cg: '', v: 6, t: 1, w: '2(+1) + x + 4(−2) = 0 → x = +6' },
+    { q: 'SO4', el: 'S', cg: '2-', v: 6, t: 2, w: 'x + 4(−2) = −2 → x = +6' },
+    { q: 'K2Cr2O7', el: 'Cr', cg: '', v: 6, t: 2, w: '2(+1) + 2x + 7(−2) = 0 → x = +6' },
+    { q: 'Cr2O7', el: 'Cr', cg: '2-', v: 6, t: 2, w: '2x + 7(−2) = −2 → x = +6' },
+    { q: 'CrO4', el: 'Cr', cg: '2-', v: 6, t: 2, w: 'x + 4(−2) = −2 → x = +6' },
+    { q: 'SO3', el: 'S', cg: '', v: 6, t: 1, w: 'x + 3(−2) = 0 → x = +6' },
+    /* +7 */
+    { q: 'KMnO4', el: 'Mn', cg: '', v: 7, t: 1, w: '(+1) + x + 4(−2) = 0 → x = +7' },
+    { q: 'MnO4', el: 'Mn', cg: '-', v: 7, t: 2, w: 'x + 4(−2) = −1 → x = +7' },
+    { q: 'HClO4', el: 'Cl', cg: '', v: 7, t: 2, w: '(+1) + x + 4(−2) = 0 → x = +7' },
+    { q: 'Cl2O7', el: 'Cl', cg: '', v: 7, t: 3, w: '2x + 7(−2) = 0 → x = +7' },
+
+    /* ===== 真题补充（9701 Ch.7 redox · 氧化数计算） ===== */
+    /* −4 */
+    { q: 'SiH4', el: 'Si', cg: '', v: -4, t: 3, w: 'x + 4(+1) = 0 → x = −4' },
+    /* −3 */
+    { q: 'NH4Cl', el: 'N', cg: '', v: -3, t: 3, w: 'x + 4(+1) + (−1) = 0 → x = −3' },
+    { q: 'NaNH2', el: 'N', cg: '', v: -3, t: 3, w: '(+1) + x + 2(+1) = 0 → x = −3' },
+    { q: 'Mg3N2', el: 'N', cg: '', v: -3, t: 3, w: '3(+2) + 2x = 0 → x = −3' },
+    /* −2 */
+    { q: 'Na2S', el: 'S', cg: '', v: -2, t: 2, w: '2(+1) + x = 0 → x = −2' },
+    { q: 'FeS', el: 'S', cg: '', v: -2, t: 2, w: '(+2) + x = 0 → x = −2' },
+    /* −1 */
+    { q: 'NH2F', el: 'N', cg: '', v: -1, t: 3, w: 'x + 2(+1) + (−1) = 0 → x = −1' },
+    { q: 'CaH2', el: 'H', cg: '', v: -1, t: 3, w: '(+2) + 2x = 0 → x = −1' },
+    { q: 'AlH3', el: 'H', cg: '', v: -1, t: 3, w: '(+3) + 3x = 0 → x = −1' },
+    { q: 'Na2O2', el: 'O', cg: '', v: -1, t: 3, w: '2(+1) + 2x = 0 → x = −1' },
+    { q: 'NaBr', el: 'Br', cg: '', v: -1, t: 2, w: '(+1) + x = 0 → x = −1' },
+    /* 0 */
+    { q: 'Br2', el: 'Br', cg: '', v: 0, t: 2, w: '单质中元素化合价 = 0' },
+    { q: 'I2', el: 'I', cg: '', v: 0, t: 2, w: '单质中元素化合价 = 0' },
+    { q: 'Zn', el: 'Zn', cg: '', v: 0, t: 2, w: '单质中元素化合价 = 0' },
+    { q: 'Mg', el: 'Mg', cg: '', v: 0, t: 2, w: '单质中元素化合价 = 0' },
+    { q: 'C', el: 'C', cg: '', v: 0, t: 2, w: '单质中元素化合价 = 0' },
+    /* +1 */
+    { q: 'NaOBr', el: 'Br', cg: '', v: 1, t: 3, w: '(+1) + (−2) + x = 0 → x = +1' },
+    { q: 'Cl2O', el: 'Cl', cg: '', v: 1, t: 3, w: '2x + (−2) = 0 → x = +1' },
+    { q: 'HNF2', el: 'N', cg: '', v: 1, t: 3, w: 'x + (+1) + 2(−1) = 0 → x = +1' },
+    { q: 'N2O2', el: 'N', cg: '2-', v: 1, t: 3, w: '2x + 2(−2) = −2 → x = +1' },
+    { q: 'Na2O', el: 'Na', cg: '', v: 1, t: 1, w: '2x + (−2) = 0 → x = +1' },
+    /* +2 */
+    { q: 'Cu', el: 'Cu', cg: '2+', v: 2, t: 1, w: '单原子离子：x = 所带电荷 = +2' },
+    { q: 'Zn', el: 'Zn', cg: '2+', v: 2, t: 1, w: '单原子离子：x = 所带电荷 = +2' },
+    { q: 'Fe', el: 'Fe', cg: '2+', v: 2, t: 1, w: '单原子离子：x = 所带电荷 = +2' },
+    { q: 'Mn', el: 'Mn', cg: '2+', v: 2, t: 1, w: '单原子离子：x = 所带电荷 = +2' },
+    { q: 'PbO', el: 'Pb', cg: '', v: 2, t: 2, w: 'x + (−2) = 0 → x = +2' },
+    /* +3 */
+    { q: 'NCl3', el: 'N', cg: '', v: 3, t: 3, w: 'x + 3(−1) = 0 → x = +3' },
+    { q: 'ClO2', el: 'Cl', cg: '-', v: 3, t: 3, w: 'x + 2(−2) = −1 → x = +3' },
+    { q: 'V2O3', el: 'V', cg: '', v: 3, t: 3, w: '2x + 3(−2) = 0 → x = +3' },
+    { q: 'Al', el: 'Al', cg: '3+', v: 3, t: 2, w: '单原子离子：x = 所带电荷 = +3' },
+    { q: 'Cr', el: 'Cr', cg: '3+', v: 3, t: 2, w: '单原子离子：x = 所带电荷 = +3' },
+    { q: 'AlCl3', el: 'Al', cg: '', v: 3, t: 2, w: 'x + 3(−1) = 0 → x = +3' },
+    /* +4 */
+    { q: 'TiO2', el: 'Ti', cg: '', v: 4, t: 3, w: 'x + 2(−2) = 0 → x = +4' },
+    { q: 'TiCl4', el: 'Ti', cg: '', v: 4, t: 3, w: 'x + 4(−1) = 0 → x = +4' },
+    { q: 'ClO2', el: 'Cl', cg: '', v: 4, t: 3, w: 'x + 2(−2) = 0 → x = +4' },
+    { q: 'N2O4', el: 'N', cg: '', v: 4, t: 3, w: '2x + 4(−2) = 0 → x = +4' },
+    { q: 'VOSO4', el: 'V', cg: '', v: 4, t: 3, w: 'x + (−2) + (+6) + 4(−2) = 0 → x = +4' },
+    { q: 'PbO2', el: 'Pb', cg: '', v: 4, t: 3, w: 'x + 2(−2) = 0 → x = +4' },
+    /* +5 */
+    { q: 'NaBrO3', el: 'Br', cg: '', v: 5, t: 3, w: '(+1) + x + 3(−2) = 0 → x = +5' },
+    { q: 'HClO3', el: 'Cl', cg: '', v: 5, t: 3, w: '(+1) + x + 3(−2) = 0 → x = +5' },
+    { q: 'KClO3', el: 'Cl', cg: '', v: 5, t: 3, w: '(+1) + x + 3(−2) = 0 → x = +5' },
+    { q: 'VO3', el: 'V', cg: '-', v: 5, t: 3, w: 'x + 3(−2) = −1 → x = +5' },
+    { q: 'VO4', el: 'V', cg: '3-', v: 5, t: 3, w: 'x + 4(−2) = −3 → x = +5' },
+    /* +6 */
+    { q: 'H2S2O7', el: 'S', cg: '', v: 6, t: 3, w: '2(+1) + 2x + 7(−2) = 0 → x = +6' },
+    { q: 'NaHSO4', el: 'S', cg: '', v: 6, t: 3, w: '(+1) + (+1) + x + 4(−2) = 0 → x = +6' },
+    { q: 'K2SO4', el: 'S', cg: '', v: 6, t: 3, w: '2(+1) + x + 4(−2) = 0 → x = +6' },
+    /* +7 */
+    { q: 'ClO4', el: 'Cl', cg: '-', v: 7, t: 3, w: 'x + 4(−2) = −1 → x = +7' },
+    { q: 'HMnO4', el: 'Mn', cg: '', v: 7, t: 3, w: '(+1) + x + 4(−2) = 0 → x = +7' },
+    { q: 'NaClO4', el: 'Cl', cg: '', v: 7, t: 3, w: '(+1) + x + 4(−2) = 0 → x = +7' }
+  ];
+
+  /* ===== 关卡：层数、网格、每层牌数 ===== */
+  var LEVELS = [
+    { key: '1', name: '入门', values: [-3, -2, -1, 0, 1, 2, 3], t: 1, groupsOf: [1, 1, 1, 1, 1, 1, 1],
+      layers: [
+        { cols: 5, rows: 4, ox: 0, oy: 0, count: 8 },
+        { cols: 4, rows: 3, ox: 0.5, oy: 0.6, count: 7 },
+        { cols: 3, rows: 2, ox: 1.0, oy: 1.2, count: 6 }
+      ] },
+    { key: '2', name: '进阶', values: [1, 2, 3, 4, 5, 6, 7], t: 2, groupsOf: [2, 2, 2, 1, 1, 1, 1],
+      layers: [
+        { cols: 5, rows: 4, ox: 0, oy: 0, count: 10 },
+        { cols: 4, rows: 4, ox: 0.5, oy: 0.6, count: 8 },
+        { cols: 4, rows: 2, ox: 1.0, oy: 1.2, count: 7 },
+        { cols: 3, rows: 2, ox: 1.5, oy: 1.8, count: 5 }
+      ] },
+    { key: '3', name: '挑战', values: [-3, -1, 1, 2, 5, 6, 7], t: 3, groupsOf: [2, 2, 2, 2, 1, 1, 1],
+      layers: [
+        { cols: 5, rows: 4, ox: 0, oy: 0, count: 9 },
+        { cols: 4, rows: 4, ox: 0.5, oy: 0.6, count: 8 },
+        { cols: 4, rows: 3, ox: 1.0, oy: 1.2, count: 7 },
+        { cols: 4, rows: 2, ox: 0.9, oy: 1.8, count: 5 },
+        { cols: 3, rows: 2, ox: 1.4, oy: 2.4, count: 4 }
+      ] }
+  ];
+
+  var COLOR = {
+    H: 'var(--mint)', C: 'var(--mint)', N: 'var(--mint)', O: 'var(--mint)', P: 'var(--mint)', S: 'var(--mint)',
+    F: 'var(--sky)', Cl: 'var(--sky)', Br: 'var(--sky)', I: 'var(--sky)',
+    Li: 'var(--butter)', Na: 'var(--butter)', K: 'var(--butter)', Mg: 'var(--butter)', Ca: 'var(--butter)', Al: 'var(--butter)',
+    Fe: 'var(--lav)', Cu: 'var(--lav)', Mn: 'var(--lav)', Cr: 'var(--lav)', V: 'var(--lav)',
+    Zn: 'var(--butter)', Ti: 'var(--lav)', Pb: 'var(--lav)', Si: 'var(--mint)'
+  };
+
+  var board = document.getElementById('board');
+  var stage = document.getElementById('stage');
+  var trayEl = document.getElementById('tray');
+  var noteEl = document.getElementById('note');
+  var overlay = document.getElementById('overlay');
+  var tabsEl = document.getElementById('tabs');
+  var vchipsEl = document.getElementById('vchips');
+
+  var state = {
+    lv: 0, tiles: [], tray: [], W: 5, H: 4.7,
+    over: false, lock: false, done: 0, total: 0,
+    hints: 3, undos: 2, shuffles: 1, sound: true, noteTimer: null,
+    mode: 'home', chal: { on: false, paused: false, pauseAt: 0, t0: 0, lvT0: 0, times: [], unlocked: 3 }
+  };
+
+  /* ---------- 小工具 ---------- */
+  function shuffleArr(a) {
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function fmtV(v) { return v > 0 ? '+' + v : (v < 0 ? '−' + Math.abs(v) : '0'); }
+
+  /* 槽位里的化学式同样按长度收一点 */
+  function FSmini(n) {
+    if (n >= 8) return 0.68;
+    if (n === 7) return 0.76;
+    if (n === 6) return 0.84;
+    if (n === 5) return 0.92;
+    return 0.97;
+  }
+
+  /* 化学式越长字号越小，保证不顶到牌边 */
+  function FS(n) {
+    if (n >= 8) return 0.17;
+    if (n === 7) return 0.185;
+    if (n === 6) return 0.212;
+    if (n === 5) return 0.235;
+    return 0.25;
+  }
+
+  function fmlHTML(t) {
+    var re = /([A-Z][a-z]?)(\d*)/g, out = '', m;
+    while ((m = re.exec(t.q)) !== null) {
+      var sym = m[1], n = m[2];
+      out += (sym === t.sym ? '<b class="tg">' + sym + '</b>' : sym) + (n ? '<sub>' + n + '</sub>' : '');
+    }
+    if (t.cg) out += '<sup>' + t.cg + '</sup>';
+    return out;
+  }
+
+  function faceHTML(t) {
+    return '<span class="tile-el" style="background:' + (COLOR[t.sym] || 'var(--mint)') + '">' + t.sym + '</span>' +
+      '<span class="tile-fml" style="font-size:calc(var(--s) * ' + FS(t.q.length) + ')">' + fmlHTML(t) + '</span>' +
+      '<span class="tile-val">' + (t.revealed ? fmtV(t.v) : '') + '</span>';
+  }
+
+  /* ---------- 音效 ---------- */
+  var actx = null;
+  function sfx(kind) {
+    if (!state.sound) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+      var map = { pick: [520, .06, .05], match: [720, .18, .06], no: [170, .1, .05], undo: [380, .08, .05], win: [880, .35, .06] };
+      var p = map[kind] || map.pick, t0 = actx.currentTime;
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.connect(g); g.connect(actx.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(p[0], t0);
+      if (kind === 'match') o.frequency.exponentialRampToValueAtTime(p[0] * 1.7, t0 + p[1]);
+      g.gain.setValueAtTime(p[2], t0);
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + p[1]);
+      o.start(t0); o.stop(t0 + p[1] + .03);
+    } catch (e) { /* 静默失败 */ }
+  }
+
+  /* ---------- 生成关卡 ---------- */
+  /* 某价在某难度层的候选池：先本层，再相邻层，最后其他层 */
+  function poolFor(v, tier) {
+    var all = SPECIES.filter(function (s) { return s.v === v; });
+    function pick(fn) { return shuffleArr(all.filter(fn).slice()); }
+    return pick(function (s) { return s.t === tier; })
+      .concat(pick(function (s) { return Math.abs(s.t - tier) === 1; }))
+      .concat(pick(function (s) { return Math.abs(s.t - tier) === 2; }));
+  }
+
+  /* 合法取牌顺序：每一步都从“当前没被压住”的牌里随机挑一张 */
+  function pickOrder(tiles) {
+    var left = tiles.slice(), out = [];
+    while (left.length) {
+      var free = left.filter(function (t) {
+        for (var i = 0; i < left.length; i++) {
+          var o = left[i];
+          if (o === t) continue;
+          if (o.layer > t.layer && overlapArea(t, o) > 0.09) return false;
+        }
+        return true;
+      });
+      if (!free.length) break;
+      var p = free[Math.floor(Math.random() * free.length)];
+      out.push(p);
+      left.splice(left.indexOf(p), 1);
+    }
+    if (left.length) out = out.concat(left);
+    return out;
+  }
+
+  function buildLevel(lvIdx) {
+    var L = LEVELS[lvIdx], tiles = [], id = 0;
+
+    L.layers.forEach(function (cfg, li) {
+      var cells = [];
+      for (var r = 0; r < cfg.rows; r++) {
+        for (var c = 0; c < cfg.cols; c++) cells.push({ x: cfg.ox + c, y: cfg.oy + r * 1.15 });
+      }
+      shuffleArr(cells);
+      for (var k = 0; k < cfg.count && k < cells.length; k++) {
+        tiles.push({
+          id: ++id, layer: li, x: cells[k].x, y: cells[k].y,
+          inTray: false, removed: false, revealed: false,
+          v: 0, sym: '', q: '', cg: '', w: '', node: null
+        });
+      }
+    });
+
+    /* 每个化合价按关卡难度取若干组三连；同关内不出现重复物质 */
+    var triples = [];
+    L.values.forEach(function (v, vi) {
+      var G = L.groupsOf ? (L.groupsOf[vi] || 1) : (L.groups || 2);
+      var pool = poolFor(v, L.t || 1);
+      var need = G * 3, base = pool.slice();
+      if (base.length < need) {
+        for (var k = 0; base.length < need && pool.length; k++) base.push(pool[k % pool.length]);
+      }
+      for (var g = 0; g < G; g++) {
+        var sp = base.slice(g * 3, g * 3 + 3);
+        if (sp.length === 3 && (sp[0] === sp[1] || sp[1] === sp[2] || sp[0] === sp[2])) {
+          sp = [pool[g % pool.length], pool[(g + 1) % pool.length], pool[(g + 2) % pool.length]];
+        }
+        triples.push({ v: v, sp: sp });
+      }
+    });
+    shuffleArr(triples);
+
+    /* 随机生成一个“从上往下都拿得到”的合法取牌顺序，再按顺序分配三连：
+       既保证关卡有解，也避免三张同价全挤在最上层、一眼就能连消 */
+    var order = pickOrder(tiles);
+    order.forEach(function (t, i) {
+      var tr = triples[Math.floor(i / 3)];
+      var sp = tr.sp[i % 3];
+      t.v = sp.v; t.sym = sp.el; t.q = sp.q; t.cg = sp.cg; t.w = sp.w;
+    });
+
+    var maxX = 0, maxY = 0;
+    tiles.forEach(function (t) { maxX = Math.max(maxX, t.x + 1); maxY = Math.max(maxY, t.y + 1.2); });
+
+    return { tiles: tiles, W: maxX, H: maxY };
+  }
+
+  /* ---------- 渲染 ---------- */
+  function renderBoard() {
+    board.innerHTML = '';
+    state.tiles.forEach(function (t) {
+      var el = document.createElement('div');
+      el.className = 'tile';
+      el.style.zIndex = String(10 + t.layer * 3);
+      el.innerHTML = faceHTML(t);
+      el.addEventListener('click', function () { onTile(t); });
+      t.node = el;
+      board.appendChild(el);
+    });
+    var peek = document.createElement('div');
+    peek.className = 'peek';
+    peek.setAttribute('aria-hidden', 'true');
+    peek.innerHTML = PEEK_SVG;
+    board.appendChild(peek);
+  }
+
+  function renderTray(newTile, matched) {
+    trayEl.innerHTML = '';
+    for (var i = 0; i < 7; i++) {
+      var slot = document.createElement('div');
+      slot.className = 'slot';
+      var t = state.tray[i];
+      if (t) {
+        slot.className = 'slot filled';
+        if (t === newTile) slot.className += ' pop';
+        if (matched && matched.indexOf(t) > -1) slot.className += ' matched';
+        slot.innerHTML = '<span class="mini-fml" style="font-size:calc(clamp(9px,3.1vw,13px) * ' + FSmini(t.q.length) + ')">' + fmlHTML(t) + '</span>';
+      }
+      trayEl.appendChild(slot);
+    }
+    document.getElementById('slotCount').textContent = String(state.tray.length);
+  }
+
+  var LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/></svg>';
+
+  function renderTabs() {
+    tabsEl.innerHTML = '';
+    LEVELS.forEach(function (L, i) {
+      var locked = state.chal.on && i >= state.chal.unlocked;
+      var b = document.createElement('button');
+      b.className = 'tab' + (i === state.lv ? ' on' : '') + (locked ? ' locked' : '');
+      if (locked) { b.setAttribute('aria-disabled', 'true'); b.innerHTML = LOCK_SVG + '第 ' + L.key + ' 关'; }
+      else b.textContent = '第 ' + L.key + ' 关 · ' + L.name;
+      b.addEventListener('click', function () {
+        if (state.chal.on) {
+          toast(locked ? ('先通关第 ' + LEVELS[i - 1].key + ' 关才能解锁') : '挑战模式按顺序闯关');
+          return;
+        }
+        startLevel(i); sfx('pick');
+      });
+      tabsEl.appendChild(b);
+    });
+  }
+
+  function renderValues() {
+    vchipsEl.innerHTML = '';
+    var left = {};
+    state.tiles.forEach(function (t) { if (!t.removed) left[t.v] = (left[t.v] || 0) + 1; });
+    LEVELS[state.lv].values.forEach(function (v) {
+      var c = document.createElement('span');
+      c.className = 'vchip' + (left[v] ? '' : ' hit');
+      c.textContent = fmtV(v);
+      vchipsEl.appendChild(c);
+    });
+  }
+
+  function updateHud() {
+    document.getElementById('done').textContent = String(state.done);
+    document.getElementById('total').textContent = String(state.total);
+    document.getElementById('cntHint').textContent = String(state.hints);
+    document.getElementById('cntUndo').textContent = String(state.undos);
+    document.getElementById('cntShuffle').textContent = String(state.shuffles);
+    document.getElementById('slotCount').textContent = String(state.tray.length);
+    document.querySelector('[data-tool="hint"]').disabled = state.hints <= 0;
+    document.querySelector('[data-tool="undo"]').disabled = state.undos <= 0;
+    document.querySelector('[data-tool="shuffle"]').disabled = state.shuffles <= 0;
+    renderValues();
+  }
+
+  /* ---------- 布局 ---------- */
+  var laying = false;
+  function doLayout() {
+    if (!state.tiles.length || laying) return;
+    laying = true;
+    var aw = stage.clientWidth - 26;
+    var ah = stage.clientHeight - 26 - 84;   /* 底部 84px 留给消除提示条 */
+    var s = Math.min(aw / state.W, ah / state.H);
+    s = Math.max(s, 34);
+    board.style.width = (state.W * s) + 'px';
+    board.style.height = (state.H * s) + 'px';
+    board.style.setProperty('--s', s.toFixed(2) + 'px');
+    state.tiles.forEach(function (t) {
+      t.node.style.left = (t.x * s + s * 0.02).toFixed(1) + 'px';
+      t.node.style.top = (t.y * s + s * 0.02).toFixed(1) + 'px';
+    });
+    laying = false;
+    if (noteEl && noteEl.classList.contains('show')) placeNote();
+  }
+
+  /* ---------- 遮挡判定 ---------- */
+  function overlapArea(a, b) {
+    var ox = Math.min(a.x + 1, b.x + 1) - Math.max(a.x, b.x);
+    var oy = Math.min(a.y + 1.2, b.y + 1.2) - Math.max(a.y, b.y);
+    return (ox > 0 && oy > 0) ? ox * oy : 0;
+  }
+  function isBlocked(t) {
+    for (var i = 0; i < state.tiles.length; i++) {
+      var o = state.tiles[i];
+      if (o === t || o.removed || o.inTray) continue;
+      if (o.layer > t.layer && overlapArea(t, o) > 0.09) return true;
+    }
+    return false;
+  }
+  function updateBlocked() {
+    state.tiles.forEach(function (t) {
+      if (t.removed || t.inTray) return;
+      t.node.classList.toggle('blocked', isBlocked(t));
+    });
+  }
+
+  /* ---------- 核心操作 ---------- */
+  function onTile(t) {
+    if (state.over || state.lock || t.inTray || t.removed) return;
+    if (isBlocked(t)) {
+      sfx('no');
+      t.node.classList.remove('shake'); void t.node.offsetWidth; t.node.classList.add('shake');
+      return;
+    }
+    sfx('pick');
+    t.inTray = true;
+    state.tray.push(t);
+    groupTray();
+    t.node.classList.add('off');
+    updateBlocked();
+    renderTray(t);
+    afterInsert();
+  }
+
+  function groupTray() {
+    var order = [];
+    state.tray.forEach(function (t) { if (order.indexOf(t.v) < 0) order.push(t.v); });
+    state.tray.sort(function (a, b) { return order.indexOf(a.v) - order.indexOf(b.v); });
+  }
+
+  function afterInsert() {
+    var counts = {};
+    state.tray.forEach(function (t) { counts[t.v] = (counts[t.v] || 0) + 1; });
+    var hit = Object.keys(counts).filter(function (k) { return counts[k] >= 3; })[0];
+
+    if (hit === undefined) {
+      if (state.tray.length >= 7) { setTimeout(lose, 220); return; }
+      ensurePlayable();
+      return;
+    }
+
+    var v = Number(hit);
+    var three = state.tray.filter(function (t) { return t.v === v; }).slice(0, 3);
+    state.lock = true;
+    renderTray(null, three);
+    sfx('match');
+
+    setTimeout(function () {
+      three.forEach(function (t) { t.removed = true; t.inTray = false; });
+      state.tray = state.tray.filter(function (t) { return three.indexOf(t) < 0; });
+      state.done++;
+      renderTray(); updateBlocked(); updateHud();
+      state.lock = false;
+      ensurePlayable();
+      showNote(three, v);
+      var left = state.tiles.filter(function (t) { return !t.removed; }).length;
+      if (left === 0 && state.tray.length === 0) { setTimeout(win, state.chal.on ? 240 : 520); }
+      else if (state.tray.length >= 7) { setTimeout(lose, 220); }
+    }, 380);
+  }
+
+  function showNote(three, v) {
+    var rows = three.map(function (t) {
+      return '<div class="note-row"><span class="note-q">' + fmlHTML(t) + '</span>' +
+        '<span class="note-w">' + t.w + '</span></div>';
+    }).join('');
+    noteEl.innerHTML = '<div class="note-head"><span class="note-val">' + fmtV(v) + '</span><span>三块同价 · 消掉啦</span></div>' + rows;
+    noteEl.classList.add('show');
+    placeNote();
+    clearTimeout(state.noteTimer);
+    state.noteTimer = setTimeout(function () { noteEl.classList.remove('show'); }, 1800);
+  }
+
+  /* 提示条停在舞台底部预留的留白里（棋盘与槽位之间），不压住牌 */
+  function placeNote() {
+    var board = document.getElementById('board'), hud = document.querySelector('.hud');
+    if (!board || !hud) return;
+    var bb = board.getBoundingClientRect().bottom;
+    var top = stage.getBoundingClientRect().bottom - noteEl.offsetHeight - 8;
+    var hb = hud.getBoundingClientRect().bottom;
+    if (top < bb + 2) top = bb + 2;
+    if (top < hb + 4) top = hb + 4;
+    noteEl.style.top = Math.round(top) + 'px';
+  }
+
+  /* ---------- 道具 ---------- */
+  function useHint() {
+    if (state.over || state.lock || state.hints <= 0) return;
+    var cands = state.tiles.filter(function (t) {
+      return !t.removed && !t.inTray && !t.revealed && !isBlocked(t);
+    });
+    if (!cands.length) return;
+    var t = cands[Math.floor(Math.random() * cands.length)];
+    t.revealed = true;
+    state.hints--;
+    t.node.innerHTML = faceHTML(t);
+    t.node.classList.remove('poke'); void t.node.offsetWidth; t.node.classList.add('poke');
+    sfx('pick'); updateHud();
+  }
+
+  function useUndo() {
+    if (state.over || state.lock || state.undos <= 0 || !state.tray.length) return;
+    var t = state.tray[state.tray.length - 1];
+    state.tray.pop();
+    t.inTray = false;
+    t.node.classList.remove('off');
+    state.undos--;
+    renderTray(); updateBlocked(); updateHud();
+    sfx('undo');
+  }
+
+  function useShuffle() {
+    if (state.over || state.lock || state.shuffles <= 0) return;
+    var alive = state.tiles.filter(function (t) { return !t.removed && !t.inTray; });
+    if (alive.length < 2) return;
+    var payload = alive.map(function (t) { return { v: t.v, sym: t.sym, q: t.q, cg: t.cg, w: t.w }; });
+    shuffleArr(payload);
+    alive.forEach(function (t, i) {
+      t.v = payload[i].v; t.sym = payload[i].sym; t.q = payload[i].q; t.cg = payload[i].cg; t.w = payload[i].w;
+      t.node.innerHTML = faceHTML(t);
+      t.node.classList.remove('poke'); void t.node.offsetWidth; t.node.classList.add('poke');
+    });
+    state.shuffles--;
+    updateHud();
+    ensurePlayable();
+    sfx('undo');
+  }
+
+  /* ---------- 挑战最后一关：每次消除后都保证还有同价三连可点 ---------- */
+  function valueSurvey() {
+    var tray = {}, free = {}, total = {}, buried = {}, i, t;
+    for (i = 0; i < state.tray.length; i++) {
+      t = state.tray[i]; tray[t.v] = (tray[t.v] || 0) + 1;
+    }
+    for (i = 0; i < state.tiles.length; i++) {
+      t = state.tiles[i];
+      if (t.removed) continue;
+      total[t.v] = (total[t.v] || 0) + 1;
+      if (t.inTray) continue;
+      if (isBlocked(t)) buried[t.v] = (buried[t.v] || 0) + 1;
+      else free[t.v] = (free[t.v] || 0) + 1;
+    }
+    return { tray: tray, free: free, total: total, buried: buried };
+  }
+
+  function hasTrio(c) {
+    for (var k in c.total) {
+      if ((c.tray[k] || 0) + (c.free[k] || 0) >= 3) return true;
+    }
+    return false;
+  }
+
+  /* 两张牌互换“物质身份”：总价数不变，只换面 */
+  function swapFace(a, b) {
+    var keys = ['v', 'sym', 'q', 'cg', 'w'], i, tmp;
+    for (i = 0; i < keys.length; i++) { tmp = a[keys[i]]; a[keys[i]] = b[keys[i]]; b[keys[i]] = tmp; }
+    [a, b].forEach(function (t) {
+      if (!t.node) return;
+      t.node.innerHTML = faceHTML(t);
+      t.node.classList.remove('poke'); void t.node.offsetWidth; t.node.classList.add('poke');
+    });
+  }
+
+  function ensurePlayable() {
+    if (!state.chal.on || state.over) return;
+    if (state.tray.length < 3) return;
+    var c = valueSurvey();
+    if (hasTrio(c)) return;
+
+    /* 挑一个“槽位里已有”或“自由牌最多”的价，把它缺的几张自由牌换面 */
+    var best = null, k;
+    for (k in c.total) {
+      if (c.total[k] < 3) continue;
+      var need = 3 - (c.tray[k] || 0) - (c.free[k] || 0);
+      if (need <= 0) continue;
+      var score = ((c.tray[k] || 0) + (c.free[k] || 0)) * 10 + c.total[k];
+      if (!best || score > best.score) best = { v: Number(k), need: need, score: score };
+    }
+    if (!best) return;
+
+    var free = [], buried = [], i, t;
+    for (i = 0; i < state.tiles.length; i++) {
+      t = state.tiles[i];
+      if (t.removed || t.inTray) continue;
+      if (isBlocked(t)) { if (t.v === best.v) buried.push(t); }
+      else if (t.v !== best.v) free.push(t);
+    }
+    if (free.length < best.need || buried.length < best.need) return;
+
+    free.sort(function (a, b) { return (c.total[b.v] || 0) - (c.total[a.v] || 0); });
+    for (i = 0; i < best.need; i++) swapFace(free[i], buried[i]);
+    updateBlocked();
+    toast('牌面自动整理了一下 · 保证还有解的');
+  }
+
+  /* ---------- 通关小烟花 ---------- */
+  var CF = (function () {
+    var cv = document.getElementById('fx');
+    if (!cv) return { fire: function () {}, clear: function () {}, grand: function () {} };
+    var cx = cv.getContext('2d');
+    var ps = [], queue = [], raf = 0, last = 0, t0 = 0, W = 0, H = 0, dpr = 1;
+    var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var COL = ['#FF7BA6', '#FF8A65', '#FFC44D', '#9C7BF0', '#49B6E5'];
+
+    function size() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth; H = window.innerHeight;
+      cv.width = Math.floor(W * dpr); cv.height = Math.floor(H * dpr);
+      cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function rnd(a, b) { return a + Math.random() * (b - a); }
+    function pick(arr) { return arr[(Math.random() * arr.length) | 0]; }
+
+    /* k: 1 上升的烟花弹 / 0 炸开的火星 / 2 尾迹 / 3 爆心闪光 */
+    function rocket(x, y, tx, ty, col, type) {
+      return { k: 1, x: x, y: y, vx: rnd(-.4, .4), vy: rnd(-18, -14), tx: tx, ty: ty, col: col, type: type, t: 0 };
+    }
+    function spark(x, y, vx, vy, col, r, life) {
+      return { k: 0, x: x, y: y, vx: vx, vy: vy, col: col, r: r, t: 0, life: life, ph: rnd(0, 6.28) };
+    }
+    function trail(x, y, col) {
+      return { k: 2, x: x, y: y, vx: rnd(-.5, .5), vy: rnd(0, .8), col: col, r: rnd(.9, 1.7), t: 0, life: rnd(26, 54) };
+    }
+    function confetti(x, y) {
+      var cols = ['#FFB2C8', '#FFDC8B', '#A8E5C6', '#CBB9F2', '#A9D9F2', '#FFB79F'];
+      var ribbon = Math.random() < .32;
+      return { k: 4, x: x, y: y, vx: rnd(-1.6, 1.6), vy: rnd(1.3, 3.0), rot: rnd(0, 6.2832), spin: rnd(-.11, .11),
+        w: ribbon ? rnd(3, 4.2) : rnd(5, 9), h: ribbon ? rnd(14, 19) : rnd(8, 13),
+        col: pick(cols), t: 0, life: ribbon ? rnd(360, 470) : rnd(300, 430),
+        sway: rnd(.7, 1.7), ph: rnd(0, 6.2832) };
+    }
+    function flash(x, y, col) {
+      return { k: 3, x: x, y: y, col: col, r: 12, t: 0, life: 30 };
+    }
+
+    function boom(x, y, col, type) {
+      ps.push(flash(x, y, col));
+      var i, a, n = type === 'heart' ? 40 : 44;
+      if (type === 'heart') {
+        for (i = 0; i < n; i++) {
+          a = i * 6.2832 / n;
+          var hx = Math.pow(Math.sin(a), 3);
+          var hy = .6 * Math.cos(a) - .3 * Math.cos(2 * a) - .16 * Math.cos(3 * a) - .06 * Math.cos(4 * a);
+          var k = rnd(7.2, 8.4);
+          ps.push(spark(x, y, hx * k, -hy * k, col, rnd(2.8, 4.1), rnd(160, 215)));
+        }
+      } else {
+        for (i = 0; i < n; i++) {
+          a = rnd(0, 6.2832);
+          var sp = rnd(2.8, 7.4);
+          ps.push(spark(x, y, Math.cos(a) * sp, Math.sin(a) * sp, i < 6 ? '#FFD166' : col, rnd(2.7, 4.0), rnd(150, 210)));
+        }
+      }
+    }
+
+    function paint(p) {
+      if (p.k === 2) {
+        var a2 = Math.max(0, 1 - p.t / p.life);
+        cx.globalAlpha = a2 * .7;
+        cx.fillStyle = p.col;
+        cx.beginPath(); cx.arc(p.x, p.y, p.r * a2, 0, 6.2832); cx.fill();
+      } else if (p.k === 3) {
+        var a3 = Math.max(0, 1 - p.t / p.life);
+        cx.globalAlpha = a3 * .5;
+        cx.fillStyle = p.col;
+        cx.beginPath(); cx.arc(p.x, p.y, p.r + p.t * .8, 0, 6.2832); cx.fill();
+      } else if (p.k === 1) {
+        cx.globalAlpha = .95;
+        cx.fillStyle = '#FFF6D8';
+        cx.beginPath(); cx.arc(p.x, p.y, 2.2, 0, 6.2832); cx.fill();
+        cx.globalAlpha = .45;
+        cx.fillStyle = p.col;
+        cx.beginPath(); cx.arc(p.x, p.y + 3, 3.6, 0, 6.2832); cx.fill();
+      } else if (p.k === 4) {
+        var a4 = Math.max(0, Math.min(1, p.t / 16, (p.life - p.t) / 40));
+        cx.save();
+        cx.translate(p.x, p.y);
+        cx.rotate(p.rot);
+        cx.globalAlpha = a4 * .86;
+        cx.fillStyle = p.col;
+        var hh = p.h * (.45 + .55 * Math.abs(Math.cos(p.t * .07 + p.ph)));
+        cx.fillRect(-p.w / 2, -hh / 2, p.w, hh);
+        cx.restore();
+      } else {
+        var a = Math.max(0, 1 - p.t / p.life);
+        var tw = .72 + .28 * Math.sin(p.t * .5 + p.ph);
+        var rr = p.r * (.5 + .5 * a);
+        cx.strokeStyle = p.col; cx.lineWidth = rr * 1.05;
+        cx.globalAlpha = a * .32 * tw;
+        cx.beginPath(); cx.moveTo(p.x, p.y); cx.lineTo(p.x - p.vx * 3.1, p.y - p.vy * 3.1); cx.stroke();
+        cx.globalAlpha = a * .35 * tw;
+        cx.fillStyle = p.col;
+        cx.beginPath(); cx.arc(p.x, p.y, rr * 2.4, 0, 6.2832); cx.fill();
+        cx.globalAlpha = Math.min(1, a * 1.15) * (.8 + .2 * tw);
+        cx.beginPath(); cx.arc(p.x, p.y, rr, 0, 6.2832); cx.fill();
+        cx.globalAlpha = Math.min(1, a * 1.15);
+        cx.fillStyle = '#FFF8E2';
+        cx.beginPath(); cx.arc(p.x, p.y, rr * .42, 0, 6.2832); cx.fill();
+      }
+    }
+
+    function frame(ts) {
+      if (!last) { last = ts; t0 = ts; }
+      var dt = Math.min(34, ts - last) / 16.67;
+      last = ts;
+      var now = ts - t0;
+      cx.clearRect(0, 0, W, H);
+      while (queue.length && queue[0].at <= now) {
+        var q = queue.shift();
+        if (q.conf) {
+          for (var ci = 0; ci < q.conf; ci++) ps.push(confetti(rnd(0, W), rnd(-H * .5, -12)));
+          continue;
+        }
+        ps.push(rocket(q.x, H * .94, q.x + rnd(-14, 14), q.ty, q.col, q.type));
+      }
+      for (var i = ps.length - 1; i >= 0; i--) {
+        var pt = ps[i];
+        pt.t += dt;
+        if (pt.k === 1) {
+          pt.vy += .34 * dt;
+          pt.x += pt.vx * dt;
+          pt.y += pt.vy * dt;
+          if (Math.random() < .8) ps.push(trail(pt.x + rnd(-2, 2), pt.y + rnd(0, 4), pt.col));
+          if (pt.y <= pt.ty || pt.vy > -2) {
+            boom(pt.x, pt.y, pt.col, pt.type);
+            ps.splice(i, 1);
+            continue;
+          }
+        } else if (pt.k === 0) {
+          pt.vy += .055 * dt;
+          pt.vx *= .986; pt.vy *= .986;
+          pt.x += pt.vx * dt; pt.y += pt.vy * dt;
+          if (pt.t > pt.life) { ps.splice(i, 1); continue; }
+        } else if (pt.k === 2) {
+          pt.x += pt.vx * dt; pt.y += pt.vy * dt;
+          if (pt.t > pt.life) { ps.splice(i, 1); continue; }
+        } else if (pt.k === 3) {
+          if (pt.t > pt.life) { ps.splice(i, 1); continue; }
+        } else if (pt.k === 4) {
+          pt.x += (pt.vx + Math.sin(pt.t * .035 + pt.ph) * pt.sway) * dt;
+          pt.y += pt.vy * dt;
+          pt.vy += .03 * dt;
+          pt.rot += pt.spin * dt;
+          if (pt.t > pt.life || pt.y > H + 40) { ps.splice(i, 1); continue; }
+        }
+        paint(pt);
+      }
+      cx.globalAlpha = 1;
+      if (ps.length || queue.length) { raf = requestAnimationFrame(frame); }
+      else { raf = 0; last = 0; cv.classList.remove('on'); cx.clearRect(0, 0, W, H); }
+    }
+
+    function fire(big) {
+      if (reduce) return;
+      size();
+      cv.classList.add('on');
+      ps.length = 0; queue.length = 0;
+      var n = big ? 7 : 4, i;
+      boom(W * .5, H * .34, COL[0], 'heart');
+      for (i = 0; i < n; i++) {
+        queue.push({
+          at: i * (big ? 260 : 330) + rnd(0, 60),
+          x: rnd(W * .16, W * .84),
+          ty: rnd(H * .16, H * .5),
+          col: COL[i - Math.floor(i / COL.length) * COL.length],
+          type: (i % 3 === 1) ? 'heart' : 'ball'
+        });
+      }
+      if (big) {
+        queue.push({ at: 1500, x: W * .5, ty: H * .3, col: '#FFF2C4', type: 'heart' });
+        queue.push({ at: 1750, x: W * .22, ty: H * .28, col: COL[4], type: 'ball' });
+        queue.push({ at: 1750, x: W * .78, ty: H * .28, col: COL[1], type: 'ball' });
+      }
+      if (!raf) { last = 0; raf = requestAnimationFrame(frame); }
+    }
+
+    /* 三关全通：爱心开场 + 九发烟花 + 四波彩带雨 + 金色收尾 */
+    function grand() {
+      if (reduce) return;
+      size();
+      cv.classList.add('on');
+      ps.length = 0; queue.length = 0;
+      var i;
+      boom(W * .5, H * .155, COL[0], 'heart');
+      boom(W * .17, H * .34, COL[3], 'ball');
+      boom(W * .83, H * .34, COL[4], 'ball');
+      for (i = 0; i < 66; i++) ps.push(confetti(rnd(0, W), rnd(-30, H * .45)));
+      for (i = 0; i < 9; i++) {
+        queue.push({ at: 260 + i * 230 + rnd(0, 80),
+          x: (i % 2) ? rnd(W * .08, W * .3) : rnd(W * .7, W * .92),
+          ty: rnd(H * .12, H * .3),
+          col: COL[i % COL.length], type: (i % 3 === 0) ? 'heart' : 'ball' });
+      }
+      queue.push({ at: 320, conf: 48 });
+      queue.push({ at: 900, conf: 40 });
+      queue.push({ at: 1500, conf: 32 });
+      queue.push({ at: 2200, conf: 26 });
+      queue.push({ at: 1700, x: W * .5, ty: H * .13, col: '#FFF2C4', type: 'heart' });
+      queue.push({ at: 2050, x: W * .14, ty: H * .26, col: COL[0], type: 'ball' });
+      queue.push({ at: 2050, x: W * .86, ty: H * .26, col: COL[2], type: 'ball' });
+      if (!raf) { last = 0; raf = requestAnimationFrame(frame); }
+    }
+
+    function clear() {
+      ps.length = 0; queue.length = 0;
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      last = 0; cv.classList.remove('on');
+      cx.clearRect(0, 0, W, H);
+    }
+
+    window.addEventListener('resize', function () { if (raf) size(); });
+    return { fire: fire, clear: clear, grand: grand };
+  })();
+
+  /* ---------- 主界面 / 模式 / 计时 ---------- */
+  var homeEl = document.getElementById('home');
+  var toastEl = document.getElementById('toast');
+  var clockTimer = null, toastTimer = null;
+  var BEST_KEY = 'yly.chal.best.v1';
+
+  function readBest() { try { var v = localStorage.getItem(BEST_KEY); return v ? (parseInt(v, 10) || 0) : 0; } catch (e) { return 0; } }
+  function saveBest(ms) { try { localStorage.setItem(BEST_KEY, String(ms)); } catch (e) {} }
+
+  function fmtTime(ms) {
+    var sec = Math.max(0, Math.round((ms || 0) / 1000));
+    var m = Math.floor(sec / 60), s2 = sec % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s2 < 10 ? '0' : '') + s2;
+  }
+  function tickClock() {
+    var el = document.getElementById('clock');
+    if (el) el.textContent = fmtTime(state.chal.on ? Date.now() - state.chal.t0 : 0);
+  }
+  function stopClock() { if (clockTimer) { clearInterval(clockTimer); clockTimer = null; } }
+  function startClock() {
+    stopClock();
+    if (!state.chal.on) { tickClock(); return; }
+    clockTimer = setInterval(tickClock, 500);
+    tickClock();
+  }
+  function renderClock() {
+    var w = document.getElementById('clkWrap');
+    if (w) w.style.display = state.chal.on ? '' : 'none';
+    tickClock();
+  }
+  function toast(msg, ms) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, ms || 1600);
+  }
+  function pauseGame() {
+    if (!state.chal.on || state.chal.paused) return;
+    state.chal.paused = true;
+    state.chal.pauseAt = Date.now();
+    stopClock();
+    var now = Date.now();
+    var el = document.getElementById('pause');
+    var t = document.getElementById('pauseTime');
+    if (t) t.textContent = '本关 ' + fmtTime(now - state.chal.lvT0) + ' · 总计 ' + fmtTime(now - state.chal.t0);
+    if (el) el.classList.add('show');
+  }
+  function resumeGame() {
+    var el = document.getElementById('pause');
+    if (el) el.classList.remove('show');
+    if (!state.chal.paused) return;
+    var d = Date.now() - state.chal.pauseAt;
+    state.chal.t0 += d; state.chal.lvT0 += d;
+    state.chal.paused = false;
+    startClock();
+  }
+
+  function updateBest() {
+    var el = document.getElementById('homeBest');
+    if (!el) return;
+    var b = readBest();
+    el.textContent = b ? '挑战模式最佳记录 · ' + fmtTime(b) : '挑战模式还没有记录，先闯一次吧';
+  }
+  function showHome() {
+    state.over = true;
+    state.chal.on = false;
+    state.chal.paused = false;
+    var pz0 = document.getElementById('pause');
+    if (pz0) pz0.classList.remove('show');
+    stopClock();
+    closeOverlay();
+    noteEl.classList.remove('show');
+    if (homeEl) homeEl.classList.add('show');
+    renderClock();
+    updateBest();
+  }
+  function startMode(m) {
+    if (homeEl) homeEl.classList.remove('show');
+    if (m === 'challenge') {
+      state.mode = 'chal';
+      state.chal = { on: true, t0: Date.now(), lvT0: 0, times: [], unlocked: 1 };
+      startLevel(0);
+      startClock();
+      toast('挑战开始 · 三关连闯');
+    } else {
+      state.mode = 'prac';
+      state.chal = { on: false, t0: 0, lvT0: 0, times: [], unlocked: LEVELS.length };
+      startLevel(state.lv);
+    }
+    renderClock();
+  }
+
+  /* ---------- 结算 ---------- */
+  function closeOverlay() { overlay.classList.remove('show'); overlay.innerHTML = ''; }
+
+  function lose() {
+    if (state.over) return;
+    state.over = true;
+    state.noteTimer && clearTimeout(state.noteTimer);
+    noteEl.classList.remove('show');
+    sfx('no');
+    if (state.chal.on) {
+      overlay.innerHTML =
+        '<div class="card">' +
+        '<h2>槽位满啦</h2>' +
+        '<p class="card-sub">挑战模式 · 计时不会暂停，理清再点</p>' +
+        '<div class="panelbox">' +
+        '<h3>本关出现的化合价</h3>' +
+        '<p>' + LEVELS[state.lv].values.map(fmtV).join(' &nbsp;·&nbsp; ') + '</p>' +
+        '</div>' +
+        '<div class="card-actions">' +
+        '<button class="btn btn-main" data-act="retry">重来本关</button>' +
+        '<button class="btn" data-act="home">回主界面</button>' +
+        '</div>' + SIGN + '</div>';
+      overlay.classList.add('show');
+      return;
+    }
+    overlay.innerHTML =
+      '<div class="card">' +
+      '<h2>槽位满啦</h2>' +
+      '<p class="card-sub">7 格里凑不出三块同价 —— 先想清楚再点哦</p>' +
+      '<div class="panelbox">' +
+      '<h3>本关出现的化合价</h3>' +
+      '<p>' + LEVELS[state.lv].values.map(fmtV).join(' &nbsp;·&nbsp; ') + '</p>' +
+      '</div>' +
+      '<div class="card-actions">' +
+      '<button class="btn btn-main" data-act="retry">再来一次</button>' +
+      '<button class="btn" data-act="tabs">换一关</button>' +
+      '</div>' + SIGN + '</div>';
+    overlay.classList.add('show');
+  }
+
+  var STAR_PTS = '0,-9 2.23,-3.07 8.56,-2.78 3.61,1.17 5.29,7.28 0,3.8 -5.29,7.28 -3.61,1.17 -8.56,-2.78 -2.23,-3.07';
+  var MEDAL_HTML = '<div class="fin-medal"><svg viewBox="0 0 120 130" aria-hidden="true">' +
+    '<path d="M46 76h13l-7 42-11-7 5-35z" fill="#FFB79F" stroke="#463757" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M74 76H61l7 42 11-7-5-35z" fill="#CBB9F2" stroke="#463757" stroke-width="3" stroke-linejoin="round"/>' +
+    '<circle cx="60" cy="54" r="40" fill="#FFE6A8" stroke="#463757" stroke-width="4"/>' +
+    '<circle cx="60" cy="54" r="31" fill="none" stroke="#463757" stroke-width="2" stroke-dasharray="5 6" opacity=".45"/>' +
+    '<polygon points="' + STAR_PTS + '" fill="#FFFDF8" stroke="#463757" stroke-width="2.2" transform="translate(34,56) scale(.8)"/>' +
+    '<polygon points="' + STAR_PTS + '" fill="#FFB2C8" stroke="#463757" stroke-width="2.4" transform="translate(60,52) scale(1)"/>' +
+    '<polygon points="' + STAR_PTS + '" fill="#FFFDF8" stroke="#463757" stroke-width="2.2" transform="translate(86,56) scale(.8)"/>' +
+    '</svg></div>';
+
+  function win() {
+    if (state.over) return;
+    state.over = true;
+    state.noteTimer && clearTimeout(state.noteTimer);
+    noteEl.classList.remove('show');
+    sfx('win');
+    var next = state.lv + 1;
+
+    /* —— 挑战模式：逐关解锁，过关直接进下一关，不弹知识点卡 —— */
+    if (state.chal.on) {
+      var lvMs = Math.max(0, Date.now() - state.chal.lvT0);
+      state.chal.times[state.lv] = lvMs;
+      state.chal.unlocked = Math.min(LEVELS.length, Math.max(state.chal.unlocked, state.lv + 2));
+      if (next < LEVELS.length) {
+        toast('第 ' + LEVELS[state.lv].key + ' 关通过 · ' + fmtTime(lvMs) + '，下一关', 900);
+        renderTabs();
+        setTimeout(function () { if (state.chal.on) startLevel(next); }, 220);
+        return;
+      }
+      /* 三关全通：结算总用时 */
+      stopClock();
+      state.chal.on = false;
+      var total = Math.max(0, Date.now() - state.chal.t0);
+      var best = readBest();
+      var isNew = !best || total < best;
+      if (isNew) saveBest(total);
+      var rows = LEVELS.map(function (L, i) {
+        return '<p class="fin-row"><span>第 ' + L.key + ' 关 · ' + L.name + '</span><b>' + fmtTime(state.chal.times[i] || 0) + '</b></p>';
+      }).join('');
+      overlay.innerHTML =
+        '<div class="card fin">' +
+        MEDAL_HTML +
+        '<h2>三关全通！</h2>' +
+        '<p class="card-sub">挑战模式 · 总用时</p>' +
+        '<p class="big-time">' + fmtTime(total) + '</p>' +
+        (isNew
+          ? '<p class="new-rec">' + (best ? '新纪录 · 快了 ' + fmtTime(Math.max(0, best - total)) : '首次挑战记录') + '</p>'
+          : '<p class="card-sub" style="text-align:center">最佳记录 ' + fmtTime(best) + '</p>') +
+        '<div class="panelbox"><h3>分关用时</h3>' + rows + '</div>' +
+        '<div class="card-actions">' +
+        '<button class="btn btn-main" data-act="chal-again">再挑战一次</button>' +
+        '<button class="btn" data-act="home">回主界面</button>' +
+        '</div>' + SIGN + '</div>';
+      overlay.classList.add('show');
+      CF.grand();
+      renderClock();
+      return;
+    }
+    overlay.innerHTML =
+      '<div class="card">' +
+      '<h2>全部消完，通关！</h2>' +
+      '<p class="card-sub">第 ' + LEVELS[state.lv].key + ' 关 · ' + LEVELS[state.lv].name + ' · 消除 ' + state.done + ' 组</p>' +
+      '<div class="panelbox">' +
+      '<h3>带走这条口诀</h3>' +
+      '<p>化合物里各元素化合价代数和为 0；多原子离子里代数和等于离子电荷。</p>' +
+      '</div>' +
+      '<div class="card-actions">' +
+      (next < LEVELS.length
+        ? '<button class="btn btn-main" data-act="next">挑战第 ' + LEVELS[next].key + ' 关</button>'
+        : '<button class="btn btn-main" data-act="retry">再玩一遍</button>') +
+      '<button class="btn" data-act="home">回主界面</button>' +
+      '</div>' + SIGN + '</div>';
+    overlay.classList.add('show');
+    CF.fire(next >= LEVELS.length);
+  }
+
+  /* ---------- 开局 ---------- */
+  function startLevel(i) {
+    state.lv = i;
+    state.chal.lvT0 = Date.now();
+    state.chal.paused = false;
+    var pz1 = document.getElementById('pause');
+    if (pz1) pz1.classList.remove('show');
+    state.over = false; state.lock = false;
+    state.done = 0; state.tray = [];
+    state.hints = 3; state.undos = 2; state.shuffles = 1;
+    state.noteTimer && clearTimeout(state.noteTimer);
+    noteEl.classList.remove('show');
+    document.body.setAttribute('data-lv', LEVELS[i].key);
+
+    var built = buildLevel(i);
+    state.tiles = built.tiles;
+    state.W = built.W; state.H = built.H;
+    var L0 = LEVELS[i];
+    state.total = L0.values.reduce(function (acc, v, vi) {
+      return acc + (L0.groupsOf ? (L0.groupsOf[vi] || 1) : (L0.groups || 2));
+    }, 0);
+
+    renderBoard();
+    var bd = document.getElementById('board');
+    if (bd) { bd.classList.remove('in'); void bd.offsetWidth; bd.classList.add('in'); }
+    renderTabs();
+    renderTray();
+    doLayout();
+    updateBlocked();
+    updateHud();
+    closeOverlay();
+    CF.clear();
+    renderClock();
+  }
+
+  /* 头像：纯 CSS 方块拼成的像素画，不依赖图片/SVG/canvas；外链图若能加载则覆盖 */
+  var AVA_SRC = 'https://media.doubao.com/space/api/box/stream/download/all_by_mount_point/O4N7bMhvKoYpSfxG6dzcTbEbneh';
+
+  function syncAva() {
+    var hero = document.getElementById('avaHeroPx');
+    if (hero) {
+      var inner = hero.innerHTML;
+      var boxes = document.querySelectorAll('.px');
+      for (var i = 0; i < boxes.length; i++) {
+        if (boxes[i] === hero || boxes[i].childNodes.length) continue;
+        boxes[i].innerHTML = inner;
+      }
+    }
+    var imgs = document.querySelectorAll('img.ava-img');
+    for (var j = 0; j < imgs.length; j++) {
+      var im = imgs[j];
+      if (im.getAttribute('data-load')) continue;
+      im.setAttribute('data-load', '1');
+      im.addEventListener('error', function () { this.style.visibility = 'hidden'; });
+      im.src = AVA_SRC;
+    }
+  }
+
+  if (window.MutationObserver) {
+    new MutationObserver(syncAva).observe(overlay, { childList: true });
+  }
+
+  var SIGN = '<div class="card-sign">' +
+    '<span class="ava ava-sm"><div class="px" aria-hidden="true"></div><img class="ava-img" alt=""></span>' +
+    '<span>微辣化学 Vera</span></div>';
+
+  var PEEK_SVG = '<svg viewBox="0 0 100 86" aria-hidden="true">' +
+    '<g fill="#FFFDF8" stroke="#54415F" stroke-width="3.2" stroke-linejoin="round">' +
+    '<circle cx="30" cy="47" r="16.5"/><circle cx="50" cy="32" r="18"/>' +
+    '<circle cx="70" cy="47" r="16.5"/><circle cx="50" cy="54" r="16.5"/></g>' +
+    '<circle cx="41" cy="44" r="3.1" fill="#54415F"/><circle cx="59" cy="44" r="3.1" fill="#54415F"/>' +
+    '<ellipse cx="33" cy="51.5" rx="4.6" ry="2.7" fill="#FFB2C8" opacity=".8"/>' +
+    '<ellipse cx="67" cy="51.5" rx="4.6" ry="2.7" fill="#FFB2C8" opacity=".8"/>' +
+    '<path d="M46.5 51q3.5 3.6 7 0" fill="none" stroke="#54415F" stroke-width="2.3" stroke-linecap="round"/></svg>';
+
+  var RULES_HTML =
+    '<div class="panelbox">' +
+    '<h3>算化合价的口诀</h3>' +
+    '<p><b>1</b>&nbsp;单质中元素化合价 = 0。</p>' +
+    '<p><b>2</b>&nbsp;单原子离子 = 所带电荷，如 Fe<sup>3+</sup> 为 +3。</p>' +
+    '<p><b>3</b>&nbsp;O 通常 −2，但 H<sub>2</sub>O<sub>2</sub> 中为 −1，OF<sub>2</sub> 中为 +2。</p>' +
+    '<p><b>4</b>&nbsp;H 通常 +1，但与金属成键的氢化物（NaH、LiAlH<sub>4</sub>）中为 −1。</p>' +
+    '<p><b>5</b>&nbsp;化合物中各元素代数和 = 0；多原子离子中各元素代数和 = 离子电荷。</p>' +
+    '<p><b>6</b>&nbsp;名称里的罗马数字就是氧化数：KMnO<sub>4</sub> 读作 manganate(VII)，Mn 为 +7。</p>' +
+    '</div>';
+
+  function showIntro() {
+    overlay.innerHTML =
+      '<div class="card">' +
+      '<div class="card-head"><span class="ava ava-md"><div class="px" aria-hidden="true"></div><img class="ava-img" alt=""></span><h2>氧了个氧</h2></div>' +
+      '<p class="card-sub">氧化数消消乐 · oxidation number</p>' +
+      '<ul class="rule-list">' +
+      '<li><i>1</i><span>点一张牌，它就滑进下方槽位（共 7 格）。</span></li>' +
+      '<li><i>2</i><span>三张牌上<b>目标元素的化合价相同</b>就消除 —— 不必是同一物质，牌面也不给答案。</span></li>' +
+      '<li><i>3</i><span>槽位塞满 7 格还凑不出三连，本局结束。</span></li>' +
+      '</ul>' +
+      RULES_HTML +
+      '<div class="card-actions"><button class="btn btn-main" data-act="start">开始第 1 关</button></div>' + SIGN +
+      '</div>';
+    overlay.classList.add('show');
+  }
+
+  /* ---------- 事件 ---------- */
+  overlay.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-act]') : null;
+    if (!b) return;
+    var act = b.getAttribute('data-act');
+    if (act === 'start') startLevel(0);
+    else if (act === 'retry') startLevel(state.lv);
+    else if (act === 'next') startLevel(state.lv + 1);
+    else if (act === 'tabs') { closeOverlay(); }
+    else if (act === 'home') { showHome(); }
+    else if (act === 'chal-again') { startMode('challenge'); }
+    else if (act === 'rules') { showRules(); }
+    else if (act === 'close') { closeOverlay(); }
+  });
+
+  document.querySelectorAll('.tools .btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var tool = b.getAttribute('data-tool');
+      if (tool === 'hint') useHint();
+      else if (tool === 'undo') useUndo();
+      else if (tool === 'shuffle') useShuffle();
+    });
+  });
+
+  document.getElementById('btnSound').addEventListener('click', function () {
+    state.sound = !state.sound;
+    this.classList.toggle('off', !state.sound);
+    if (state.sound) sfx('pick');
+  });
+
+  function showRules() {
+    overlay.innerHTML =
+      '<div class="card">' +
+      '<h2>化合价口诀卡</h2>' +
+      '<p class="card-sub">calculate oxidation numbers of elements in compounds and ions</p>' +
+      RULES_HTML +
+      '<div class="panelbox"><h3>做题顺序</h3>' +
+      '<p>先写出已知元素的化合价，设目标元素为 <b>x</b>，按“代数和 = 0 或离子电荷”列方程，解出 x。</p></div>' +
+      '<div class="card-actions"><button class="btn btn-main" data-act="close">知道啦</button>' +
+      '<button class="btn" data-act="home">回主界面</button></div>' + SIGN +
+      '</div>';
+    overlay.classList.add('show');
+  }
+  document.getElementById('btnRules').addEventListener('click', showRules);
+
+  if (overlay) {
+    overlay.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-act="close"]') : null;
+      if (b) closeOverlay();
+    });
+  }
+
+  window.addEventListener('resize', function () { doLayout(); });
+  if (window.ResizeObserver) { new ResizeObserver(function () { doLayout(); }).observe(stage); }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function () { doLayout(); }); }
+  window.addEventListener('orientationchange', function () { setTimeout(doLayout, 260); });
+
+  /* ---------- 启动 ---------- */
+  syncAva();
+  startLevel(0);
+  showHome();
+
+  document.getElementById('btnHome').addEventListener('click', function () { sfx('pick'); showHome(); });
+  document.getElementById('btnPause').addEventListener('click', function () { sfx('pick'); pauseGame(); });
+  document.getElementById('btnResume').addEventListener('click', function () { sfx('pick'); resumeGame(); });
+  document.getElementById('btnPauseHome').addEventListener('click', function () { sfx('pick'); showHome(); });
+  document.getElementById('home').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-act]') : null;
+    if (!b) return;
+    var act = b.getAttribute('data-act');
+    if (act === 'mode-challenge') startMode('challenge');
+    else if (act === 'mode-practice') startMode('practice');
+    else if (act === 'rules') showRules();
+    else if (act === 'sound') { document.getElementById('btnSound').click(); updateBest(); }
+  });
+})();
+</script>
+</body>
+</html>
